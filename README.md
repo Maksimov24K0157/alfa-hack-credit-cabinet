@@ -7,6 +7,7 @@
          Андрей(блин фамилию забыл) - Frontend developer / Backend developer
 Запуск: docker-compose up
 Структура:
+```text
 alfa-hack-credit-cabinet/
 │
 ├── .github/                  # (Опционально) Шаблоны для Issue/PR, если время будет
