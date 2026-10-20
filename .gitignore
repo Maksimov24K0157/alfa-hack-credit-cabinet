@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data (если данные слишком большие, но лучше загрузить)
+# data/raw/*.csv
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.log
