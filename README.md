@@ -5,7 +5,7 @@
 * Максимов Алексей - Data Scientist
 * Дейнеко Анна - Data Scientist
 * Елькин Дмитрий - Frontend developer / Backend developer
-* Андрей(блин фамилию забыл) - Frontend developer / Backend developer
+* Андрей Овчинников - Frontend developer / Backend developer
 Запуск: docker-compose up
 Структура:
 ```text
