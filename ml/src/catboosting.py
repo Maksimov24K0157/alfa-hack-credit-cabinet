@@ -3,12 +3,6 @@ from pathlib import Path
 import pandas as pd
 from catboost import CatBoostClassifier
 
-MODEL_PATH = (
-    Path(__file__).resolve().parent.parent
-    / "models"
-    / "catboost_model.cbm"
-)
-
 model = CatBoostClassifier()
 model.load_model(str(MODEL_PATH))
 
@@ -61,3 +55,8 @@ def predict_risk(company_data: dict) -> dict:
         "risk_class": prediction,
         "class_probabilities": probability_by_class,
     }
+
+from pathlib import Path
+
+MODEL_PATH = Path(__file__).resolve().parent / "catboost_model.cbm"
+model.save_model(str(MODEL_PATH))
