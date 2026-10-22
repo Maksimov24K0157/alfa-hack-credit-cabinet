@@ -7,9 +7,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
 
-BASE_DIR = Path(__file__).resolve().parent
-DATA_PATH = BASE_DIR / "synthetic_data.csv"
-MODEL_PATH = BASE_DIR / "catboost_model.cbm"
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+DATA_PATH = BASE_DIR / "data" / "raw" / "synthetic_data.csv"
+MODEL_PATH = BASE_DIR / "models" / "catboost_model.cbm"
 
 NUMERIC_FEATURES = [
     "company_age",
