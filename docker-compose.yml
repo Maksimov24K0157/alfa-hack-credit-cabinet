@@ -1,18 +1,36 @@
-version: '3.8'
-
 services:
   backend:
-    build: ./backend
+    build:
+      context: .                      # project root, so the image can include ml/
+      dockerfile: backend/Dockerfile
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8000}:8000"
     environment:
-      - DATABASE_URL=sqlite:///./test.db
+      DATABASE_URL: ${DATABASE_URL:-sqlite:////data/app.db}
+      MODEL_PATH: ${MODEL_PATH:-/ml/models/model.pkl}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
     volumes:
-      - ./backend:/app
+      - ./backend/app:/app/app        # live code reload during development
+      - ./ml/src:/ml/src:ro           # scorer.py, mocks.py
+      - ./ml/models:/ml/models:ro     # model.pkl / catboost.cbm
+      - db-data:/data                 # SQLite file survives container restarts
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/docs')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api            # browser calls /api/..., nginx forwards to backend
     ports:
-      - "8501:8501" # Порт для Streamlit
+      - "${FRONTEND_PORT:-3000}:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy    # nginx fails to start if "backend" isn't resolvable yet
+
+volumes:
+  db-data:
