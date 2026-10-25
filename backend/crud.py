@@ -460,6 +460,19 @@ def update_loan(loan_id: int, **kwargs):
     finally:
         db.close()
 
+def get_loans_by_user_id(user_id: int):
+    """
+    Получить все кредиты пользователя.
+    Так как loans не имеет прямой связи с users, мы делаем JOIN через applications.
+    """
+    db = SessionLocal()
+    try:
+        return db.query(loans).join(
+            applications, loans.application_id == applications.application_id
+        ).filter(applications.user_id == user_id).all()
+    finally:
+        db.close()
+
 def delete_loan(loan_id: int):
     db = SessionLocal()
     try:
