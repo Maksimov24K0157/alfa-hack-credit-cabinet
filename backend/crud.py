@@ -489,12 +489,11 @@ def delete_loan(loan_id: int):
 # 9. ПАСПОРТА (PASSPORT)
 # ==========================================
 
-def create_passport(user_id: int, series: str, number: str, issued_by: str, issue_date, code: str, registration_address: str, birth_date):
+def create_passport(series: str, number: str, issued_by: str, issue_date, code: str, registration_address: str, birth_date):
     """Создать паспорт для пользователя."""
     db = SessionLocal()
     try:
         new_passport = passport(
-            user_id=user_id,
             series=series,
             number=number,
             issued_by=issued_by,
@@ -515,14 +514,6 @@ def get_passport_by_id(passport_id: int):
     db = SessionLocal()
     try:
         return db.query(passport).filter(passport.id == passport_id).first()
-    finally:
-        db.close()
-
-def get_passport_by_user_id(user_id: int):
-    """Найти паспорт по ID пользователя (по внешнему ключу)."""
-    db = SessionLocal()
-    try:
-        return db.query(passport).filter(passport.user_id == user_id).first()
     finally:
         db.close()
 
