@@ -67,7 +67,44 @@ def seed_database():
         db.add(user_companies(user_id=user3.user_id, company_id=comp3.company_id))
 
         db.commit()
-            
+        passport1 = passport(
+            user_id=user1.user_id,
+            series="1234",
+            number="567890",
+            issued_by="ОВД Кировского района г. Москвы",
+            issue_date=datetime(2015, 5, 20),
+            code="770-001",
+            registration_address="г. Москва, ул. Ленина, д. 5, кв. 10",
+            birth_date=datetime(1990, 1, 15)
+        )
+        db.add(passport1)
+
+# Создаем паспорт для Петра (user2)
+        passport2 = passport(
+            user_id=user2.user_id,
+            series="5678",
+            number="123456",
+            issued_by="УФМС России по г. Санкт-Петербургу",
+            issue_date=datetime(2018, 8, 10),
+            code="780-002",
+            registration_address="г. Санкт-Петербург, Невский пр., д. 100",
+            birth_date=datetime(1985, 12, 5)
+        )
+        db.add(passport2)
+
+# Создаем паспорт для Сергея (user3)
+        passport3 = passport(
+            user_id=user3.user_id,
+            series="9012",
+            number="345678",
+            issued_by="ОВД Центрального района г. Екатеринбурга",
+            issue_date=datetime(2012, 3, 12),
+            code="660-003",
+            registration_address="г. Екатеринбург, ул. Мира, д. 20",
+            birth_date=datetime(1995, 7, 25)
+        )
+        db.add(passport3)
+        db.commit()
     finally:
         db.close()
 
