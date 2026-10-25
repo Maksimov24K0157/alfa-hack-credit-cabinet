@@ -2,6 +2,13 @@ from .database import SessionLocal
 from .models import users, companies, user_companies, applications, risk_assesments, products, loan_offers, loans, passport
 from datetime import datetime, timezone
 
+def to_dict(orm_row):
+    if orm_row is None:
+        return None
+    dictionary = orm_row.__dict__
+    dictionary.pop("_sa_instance_state")
+    return dictionary
+
 # ==========================================
 # 1. ПОЛЬЗОВАТЕЛИ (USERS)
 # ==========================================
@@ -461,15 +468,14 @@ def update_loan(loan_id: int, **kwargs):
         db.close()
 
 def get_loans_by_user_id(user_id: int):
-    """
-    Получить все кредиты пользователя.
-    Так как loans не имеет прямой связи с users, мы делаем JOIN через applications.
-    """
+    """Получить все кредиты пользователя (через его компании)."""
     db = SessionLocal()
     try:
+        # Делаем JOIN: loans -> user_companies по company_id
+        # И фильтруем по user_id
         return db.query(loans).join(
-            applications, loans.application_id == applications.application_id
-        ).filter(applications.user_id == user_id).all()
+            user_companies, loans.company_id == user_companies.company_id
+        ).filter(user_companies.user_id == user_id).all()
     finally:
         db.close()
 

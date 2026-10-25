@@ -11,58 +11,43 @@ app = Flask(__name__)
 def index(): 
     return render_template('index.html')
 
-@app.route('/api/users')
+@app.route('/api/users')#!
 def get_users():
-    conn = sqlite3.connect('bank.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT Email FROM users')
-    users = [row[0] for row in cursor.fetchall()]
-    conn.close()
-    return jsonify(users)
+    return jsonify(crud.get_all_emails())
 
-@app.route('/api/user/<email>')
+@app.route('/api/user/<email>')#!
 def get_user(email):
-    conn = sqlite3.connect('bank.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM users WHERE Email = ?', (email,))
-    user = cursor.fetchone()
-    conn.close()
+    user = crud.get_user_by_email(email)
+    passport = crud.get_passport_by_id(user.passport_id)
+    companies = crud.get_companies_by_user(user.user_id)
     if user:
         return jsonify({
-            'userId': user[0], 'login': user[1], 'password': user[3], 
-            'name': user[5], 'surname': user[6], 'patronymic': user[7], 
-            'phone': user[2], 'inn': user[8], 'company': user[9],
-            'salary': user[10], 'risk': user[11],
-            'passportSeries': user[12], 'passportNumber': user[13],
-            'passportIssuedBy': user[14], 'passportIssueDate': user[15],
-            'passportCode': user[16], 'registrationAddress': user[17],
-            'birthDate': user[18]
+            'userId': user.user_id, 'login': user.email, 'password': user.hash_password, 
+            'name': user.name, 'surname': user.surname, 'patronymic': user.patronymic, 
+            'phone': user.phone, 'inn': "NOT_IMPLEMENTED", 'company': "NOT_IMPLEMENTED",
+            'salary': "NOT_PRESENT", 'risk': "NOT_PRESENT",
+            'passportSeries': passport.series, 'passportNumber': passport.number,
+            'passportIssuedBy': passport.issued_by, 'passportIssueDate': passport.issue_date,
+            'passportCode': passport.code, 'registrationAddress': passport.registration_address,
+            'birthDate': passport.birth_date
         })
     return jsonify({'error': 'User not found'}), 404
 
-@app.route('/api/loans/<int:user_id>')
+@app.route('/api/loans/<int:user_id>')#!
 def get_loans(user_id):
-    conn = sqlite3.connect('bank.db')
-    cursor = conn.cursor()
-    cursor.execute('''
-        SELECT l.*, c.Name as BankName, c.Icon_Text 
-        FROM loans l JOIN companies c ON l.CompanyID = c.CompanyID
-        WHERE l.UserID = ?
-    ''', (user_id,))
-    loans = cursor.fetchall()
-    conn.close()
-    
+    loans = crud.get_loans_by_user_id(user_id)
     result = []
     for loan in loans:
+        application = crud.get_application_by_id(loan.application_id)
         result.append({
-            'id': loan[0], 'purpose': loan[3], 'amount': loan[4], 'remaining': loan[5],
-            'rate': loan[6], 'status': loan[7], 'term': loan[8], 'issue_date': loan[9],
-            'end_date': loan[10], 'monthly_payment': loan[11], 'bank_name': loan[12], 'bank_icon': loan[13]
+            'id': loan.loan_id, 'purpose': application.loan_purpose, 'amount': loan.amount, 'remaining': "NOT_PRESENT",
+            'rate': loan.interest_rate, 'status': loan.status, 'term': loan.term_months, 'issue_date': loan.issue_date,
+            'end_date': loan.end_date, 'monthly_payment': loan.monthly_payment, 'bank_name': "NOT_PRESENT", 'bank_icon': "NOT_PRESENT"
         })
     return jsonify(result)
 
 @app.route('/api/applications', methods=['POST'])
-def create_application():
+def create_application():#TODO rewrite for company selection
     data = request.json
     user_id = data.get('userId')
     amount = data.get('amount')
@@ -81,9 +66,10 @@ def create_application():
     ''', (user_id, 1, amount, term, purpose, risk_level, created_at))
     conn.commit()
     conn.close()
+
     return jsonify({'success': True})
 
-@app.route('/api/offers/<int:user_id>', methods=['POST'])
+@app.route('/api/offers/<int:user_id>', methods=['POST'])#TODO massive rewrite
 def get_offers(user_id):
     try:
         data = request.json
@@ -200,6 +186,12 @@ def issue_loan():
     cursor = conn.cursor()
     
     # Обновляем ВСЕ данные пользователя (включая паспортные)
+    passport_id = crud.get_passport_by_id(crud.get_user_by_id(user_id).passport_id).id
+    crud.update_user(user_id, phone= phone, name= name, surname= surname)
+    crud.update_passport(passport_id, 
+                         series= passportSeries, number= passportNumber, issued_by= passportIssuedBy, 
+                         issue_date= passportIssueDate, code= passportCode, registration_address= registrationAddress,
+                         birth_date= birthDate)
     cursor.execute('''
         UPDATE users SET 
             Name = ?, Surname = ?, Patronymic = ?, Phone = ?, INN = ?, Company = ?,
@@ -218,7 +210,8 @@ def issue_loan():
     month = month % 12 + 1
     day = min(end_date_dt.day, 28)
     end_date = f"{year}-{month:02d}-{day:02d}"
-    
+
+    #crud.create_loan() TODO get application id in this function
     cursor.execute('''
         INSERT INTO loans (UserID, CompanyID, Purpose, Amount, Remaining_Amount, Interest_rate, Status, Term_months, issue_date, end_date, monthly_payment)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
