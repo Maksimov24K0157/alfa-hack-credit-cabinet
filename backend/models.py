@@ -45,7 +45,7 @@ class companies(Base):
         CheckConstraint("revenue_last_year >= 0", name='check_revenue_last_year'),
         CheckConstraint("existing_debt >= 0", name='check_existing_debt'),
         CheckConstraint("credit_history_status in ('positive', 'negative', 'limited')", name='check_credit_history_status'),
-        CheckConstraint("industry_okved in ('IT', 'manufacturing', 'construction', 'retail', 'wholsale', 'transport', 'agriculture', 'consulting')", name='check_industry_okved')
+        CheckConstraint("industry_okved in ('IT', 'manufacturing', 'construction', 'retail', 'wholsale', 'transport', 'agriculture', 'consulting')", name='check_industry_okved'),
     )
 
 class applications(Base):
@@ -64,7 +64,7 @@ class applications(Base):
         CheckConstraint("requested_amount > 0", name='check_requested_amount'), #возможно имеет смысл ввести минимальную ссумму кредитования
         CheckConstraint("term_months >= 0", name='check_term_months'),
         CheckConstraint("status in ('created', 'scored', 'offered', 'approved', 'closed by user', 'denied')", name='check_status'),
-        CheckConstraint("loan_purpose in ('working_capital', 'equipment', 'business_expansion', 'refinancing')", name='check_loan_purpose')
+        CheckConstraint("loan_purpose in ('working_capital', 'equipment', 'business_expansion', 'refinancing')", name='check_loan_purpose'),
     )
 
 class risk_assesments(Base):
@@ -75,7 +75,7 @@ class risk_assesments(Base):
     risk_class = Column(String, nullable = False)
 
     __table_args__ = (
-        CheckConstraint("risk_class in ('low_risk', 'medium_risk', 'high_risk', 'very_high_risk')", name = 'check_risk_class')
+        CheckConstraint("risk_class in ('low_risk', 'medium_risk', 'high_risk', 'very_high_risk')", name = 'check_risk_class'),
     )
 
 class products(Base):
@@ -94,7 +94,7 @@ class products(Base):
         CheckConstraint("max_amount > 0 AND max_amount >= min_amount", name='check_max_amount'),
         CheckConstraint("min_rate > 0", name='check_min_rate'),
         CheckConstraint("max_rate > 0 AND max_rate >= min_rate", name='check_max_rate'),
-        CheckConstraint("max_allowed_risk_levels in ('low_risk', 'medium_risk', 'high_risk', 'very_high_risk')", name='check_max_allowed_risk_levels')
+        CheckConstraint("max_allowed_risk_levels in ('low_risk', 'medium_risk', 'high_risk', 'very_high_risk')", name='check_max_allowed_risk_levels'),
     )
 
 class loan_offers(Base):
@@ -111,7 +111,7 @@ class loan_offers(Base):
     __table_args__ = (
         CheckConstraint("approved_amount > 0", name='check_approved_amount'),
         CheckConstraint("interest_rate > 0", name='check_interest_rate'),
-        CheckConstraint("terms_months > 0", name='check_terms_months')
+        CheckConstraint("terms_months > 0", name='check_terms_months'),
     )
 
 class loans(Base):
@@ -133,5 +133,5 @@ class loans(Base):
         CheckConstraint("interest_rate > 0", name='check_interest_rate'),
         CheckConstraint("status in ('active', 'closed')", name='check_status'),
         CheckConstraint("term_months >= 0", name='check_term_months'),
-        CheckConstraint("monthly_payment > 0", name='check_monthly_payment')
+        CheckConstraint("monthly_payment > 0", name='check_monthly_payment'),
     )
