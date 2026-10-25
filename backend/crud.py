@@ -71,11 +71,11 @@ def delete_user(user_id: int):
 # ==========================================
 # 2. КОМПАНИИ (COMPANIES)
 # ==========================================
-def create_company(entity_type: str, inn: str, company_age: int, industry_okved: str, revenue_last_year: float, net_profit: float, existing_debt: float, credit_history_status: str):
+def create_company(name: str, entity_type: str, inn: str, company_age: int, industry_okved: str, revenue_last_year: float, net_profit: float, existing_debt: float, credit_history_status: str):
     db = SessionLocal()
     try:
         new_company = companies(
-            entity_type=entity_type, inn=inn, company_age=company_age, industry_okved=industry_okved,
+            name=name, entity_type=entity_type, inn=inn, company_age=company_age, industry_okved=industry_okved,
             revenue_last_year=revenue_last_year, net_profit=net_profit, existing_debt=existing_debt,
             credit_history_status=credit_history_status
         )
