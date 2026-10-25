@@ -1,5 +1,5 @@
 from .database import SessionLocal
-from .models import users, companies, user_companies, applications, risk_assesments, products, loan_offers, loans
+from .models import users, companies, user_companies, applications, risk_assesments, products, loan_offers, loans, passport
 from datetime import datetime, timezone
 
 # ==========================================
@@ -479,6 +479,74 @@ def delete_loan(loan_id: int):
         loan = db.query(loans).filter(loans.loan_id == loan_id).first()
         if loan:
             db.delete(loan)
+            db.commit()
+            return True
+        return False
+    finally:
+        db.close()
+
+# ==========================================
+# 9. ПАСПОРТА (PASSPORT)
+# ==========================================
+
+def create_passport(user_id: int, series: str, number: str, issued_by: str, issue_date, code: str, registration_address: str, birth_date):
+    """Создать паспорт для пользователя."""
+    db = SessionLocal()
+    try:
+        new_passport = passport(
+            user_id=user_id,
+            series=series,
+            number=number,
+            issued_by=issued_by,
+            issue_date=issue_date,
+            code=code,
+            registration_address=registration_address,
+            birth_date=birth_date
+        )
+        db.add(new_passport)
+        db.commit()
+        db.refresh(new_passport)
+        return new_passport
+    finally:
+        db.close()
+
+def get_passport_by_id(passport_id: int):
+    """Найти паспорт по первичному ключу."""
+    db = SessionLocal()
+    try:
+        return db.query(passport).filter(passport.id == passport_id).first()
+    finally:
+        db.close()
+
+def get_passport_by_user_id(user_id: int):
+    """Найти паспорт по ID пользователя (по внешнему ключу)."""
+    db = SessionLocal()
+    try:
+        return db.query(passport).filter(passport.user_id == user_id).first()
+    finally:
+        db.close()
+
+def update_passport(passport_id: int, **kwargs):
+    """Изменить данные паспорта."""
+    db = SessionLocal()
+    try:
+        passp = db.query(passport).filter(passport.id == passport_id).first()
+        if passp:
+            for key, value in kwargs.items():
+                setattr(passp, key, value)
+            db.commit()
+            return passp
+        return None
+    finally:
+        db.close()
+
+def delete_passport(passport_id: int):
+    """Удалить паспорт."""
+    db = SessionLocal()
+    try:
+        passp = db.query(passport).filter(passport.id == passport_id).first()
+        if passp:
+            db.delete(passp)
             db.commit()
             return True
         return False
