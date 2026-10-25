@@ -75,7 +75,7 @@ class risk_assesments(Base):
     risk_class = Column(String, nullable = False)
 
     __table_args__ = (
-        CheckConstraint("risk_class in ('low_risk', 'medium_risk', 'high_risk', 'very_high_risk')", name = 'check_risk_class')
+        CheckConstraint("risk_class in ('low_risk', 'medium_risk', 'high_risk', 'very_high_risk')", name = 'check_risk_class',)
     )
 
 class products(Base):
