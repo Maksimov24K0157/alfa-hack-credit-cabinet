@@ -35,7 +35,7 @@ def seed_database():
         db.add(user_companies(user_id=user1.user_id, company_id=comp1.company_id))
 
         # --- Пользователь 2 (Средняя компания, средний риск) ---
-        user2 = users(email="client2@test.ru", phone="79990000002", hash_password="123", hash_salt="salt2", name="Петр", surname="Сидоров")
+        user2 = users(email="client2@test.ru", phone="79990000002", hash_password="456", hash_salt="salt2", name="Петр", surname="Сидоров")
         db.add(user2)
         db.commit()
         
@@ -51,7 +51,7 @@ def seed_database():
         db.add(user_companies(user_id=user2.user_id, company_id=comp2.company_id))
 
         # --- Пользователь 3 (Плохая компания, высокий риск) ---
-        user3 = users(email="client3@test.ru", phone="79990000003", hash_password="123", hash_salt="salt3", name="Сергей", surname="Иванов")
+        user3 = users(email="client3@test.ru", phone="79990000003", hash_password="789", hash_salt="salt3", name="Сергей", surname="Иванов")
         db.add(user3)
         db.commit()
         
