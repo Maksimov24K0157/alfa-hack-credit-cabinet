@@ -2,134 +2,10 @@ from flask import Flask, render_template, jsonify, request
 import sqlite3
 from datetime import datetime
 
+from backend import crud
+from ml.src import catboosting
+
 app = Flask(__name__)
-
-def init_db():
-    conn = sqlite3.connect('bank.db')
-    cursor = conn.cursor()
-    
-    # Таблица пользователей (с паспортными данными)
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            UserID INTEGER PRIMARY KEY,
-            Email TEXT, Phone TEXT, HashPassword TEXT, HashSalt TEXT,
-            Name TEXT, Surname TEXT, Patronymic TEXT, INN TEXT, Company TEXT,
-            Salary REAL, RiskLevel TEXT,
-            PassportSeries TEXT, PassportNumber TEXT, PassportIssuedBy TEXT,
-            PassportIssueDate TEXT, PassportCode TEXT, RegistrationAddress TEXT,
-            BirthDate TEXT
-        )
-    ''')
-    
-    # Таблица банков
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS companies (
-            CompanyID INTEGER PRIMARY KEY, Name TEXT, Icon_Text TEXT
-        )
-    ''')
-    
-    # Таблица выданных кредитов
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS loans (
-            LoanID INTEGER PRIMARY KEY AUTOINCREMENT, 
-            UserID INTEGER, CompanyID INTEGER,
-            Purpose TEXT, Amount REAL, Remaining_Amount REAL, Interest_rate REAL,
-            Status TEXT, Term_months INTEGER, issue_date TEXT, end_date TEXT, monthly_payment REAL
-        )
-    ''')
-    
-    # Таблица заявок
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS applications (
-            ApplicationID INTEGER PRIMARY KEY AUTOINCREMENT,
-            UserID INTEGER, CompanyID INTEGER, Requested_amount REAL,
-            Term_months INTEGER, Loan_purpose TEXT, Status TEXT, Created_at TEXT
-        )
-    ''')
-    
-    # Таблица предложений банков
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS offers (
-            OfferID INTEGER PRIMARY KEY, CompanyID INTEGER, Purpose TEXT,
-            Amount REAL, Term_months INTEGER, Interest_rate REAL, Risk_category TEXT
-        )
-    ''')
-    
-    # Очищаем только пользователей, банки и предложения.
-    # ВАЖНО: loans и applications НЕ ОЧИЩАЕМ, чтобы история сохранялась!
-    cursor.execute('DELETE FROM users')
-    cursor.execute('DELETE FROM companies')
-    cursor.execute('DELETE FROM offers')
-    
-    # Данные пользователей (с паспортами)
-    users = [
-        (1, 'ivanov@mail.ru', '+79991112233', 'pass1', 'salt1', 'Иван', 'Иванов', 'Иванович', '123456789012', 'ООО "Ромашка"', 75000, 'Низкий', '4510', '123456', 'ОВД г. Москвы', '2010-05-15', '770-001', 'г. Москва, ул. Ленина, д. 1', '1990-01-01'),
-        (2, 'petrova@mail.ru', '+79992223344', 'pass2', 'salt2', 'Анна', 'Петрова', 'Сергеевна', '234567890123', 'ИП Петрова', 120000, 'Средний', '4515', '654321', 'УФМС г. Санкт-Петербурга', '2015-08-20', '780-002', 'г. Санкт-Петербург, ул. Мира, д. 10', '1985-05-12'),
-        (3, 'sidorov@mail.ru', '+79993334455', 'pass3', 'salt3', 'Сергей', 'Сидоров', 'Петрович', '345678901234', 'Самозанятый', 45000, 'Высокий', '4520', '112233', 'ОВД г. Казани', '2020-02-10', '160-003', 'г. Казань, ул. Баумана, д. 5', '1995-11-30'),
-        (4, 'smirnov@mail.ru', '+79994445566', 'pass4', 'salt4', 'Алексей', 'Смирнов', 'Алексеевич', '456789012345', 'ООО "Тяжмаш"', 30000, 'Критический', '4525', '445566', 'ОВД г. Екатеринбурга', '2025-01-15', '660-004', 'г. Екатеринбург, ул. Гагарина, д. 20', '2000-07-07'),
-    ]
-    cursor.executemany('INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', users)
-    
-    # Данные банков (только Альфа)
-    companies = [
-        (1, 'Альфа-Банк', 'А')
-    ]
-    cursor.executemany('INSERT INTO companies VALUES (?, ?, ?)', companies)
-    
-    # Проверяем: если кредитов вообще нет (первый запуск), добавляем тестовый
-    cursor.execute('SELECT COUNT(*) FROM loans')
-    if cursor.fetchone()[0] == 0:
-        loans = [
-            (1, 1, 1, 'Ипотека', 5000000, 4788120, 8.5, 'Активен', 240, '2019-01-01', '2039-01-01', 43400)
-        ]
-        cursor.executemany('INSERT INTO loans (LoanID, UserID, CompanyID, Purpose, Amount, Remaining_Amount, Interest_rate, Status, Term_months, issue_date, end_date, monthly_payment) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', loans)
-    
-    # Генерация предложений (256 штук)
-    purposes = [
-        "Ремонт", "Автомобиль", "Образование", "Ипотека", 
-        "Первоначальный взнос", "Открытие бизнеса", "Потребительский", "Кредитная карта"
-    ]
-    
-    offers = []
-    offer_id = 1
-    
-    for purpose in purposes:
-        # Категория 1 (Критический риск)
-        for i in range(8):
-            amount = 30000 + (i * 10000)
-            term = 6 + i
-            rate = 25.0 - (i * 0.5)
-            offers.append((offer_id, 1, purpose, amount, term, rate, 'cat1'))
-            offer_id += 1
-            
-        # Категория 2 (Высокий риск)
-        for i in range(8):
-            amount = 50000 + (i * 35000)
-            term = 12 + (i * 2)
-            rate = 21.0 - (i * 0.4)
-            offers.append((offer_id, 1, purpose, amount, term, rate, 'cat2'))
-            offer_id += 1
-
-        # Категория 3 (Средний риск)
-        for i in range(8):
-            amount = 100000 + (i * 120000)
-            term = 24 + (i * 6)
-            rate = 16.0 - (i * 0.4)
-            offers.append((offer_id, 1, purpose, amount, term, rate, 'cat3'))
-            offer_id += 1
-
-        # Категория 4 (Низкий риск)
-        for i in range(8):
-            amount = 500000 + (i * 600000)
-            term = 36 + (i * 12)
-            rate = 12.0 - (i * 0.4)
-            offers.append((offer_id, 1, purpose, amount, term, rate, 'cat4'))
-            offer_id += 1
-
-    cursor.executemany('INSERT INTO offers VALUES (?, ?, ?, ?, ?, ?, ?)', offers)
-    
-    conn.commit()
-    conn.close()
 
 @app.route('/')
 def index(): 
@@ -351,7 +227,3 @@ def issue_loan():
     conn.commit()
     conn.close()
     return jsonify({'success': True})
-
-if __name__ == '__main__':
-    init_db()
-    app.run(debug=True, port=5000)

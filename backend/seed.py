@@ -1,5 +1,5 @@
-from database import SessionLocal, init_db
-from models import users, companies, products, user_companies
+from .database import SessionLocal, init_db
+from .models import users, companies, products, user_companies
 
 def seed_database():
     print("Инициализация базы данных...")
