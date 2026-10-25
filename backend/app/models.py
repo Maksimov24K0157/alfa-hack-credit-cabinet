@@ -44,7 +44,8 @@ class companies(Base):
         CheckConstraint("company_age >= 0", name='check_company_age'),
         CheckConstraint("revenue_last_year >= 0", name='check_revenue_last_year'),
         CheckConstraint("existing_debt >= 0", name='check_existing_debt'),
-        CheckConstraint("credit_history_status in ('positive', 'negative', 'limited')", name='check_credit_history_status')
+        CheckConstraint("credit_history_status in ('positive', 'negative', 'limited')", name='check_credit_history_status'),
+        CheckConstraint("industry_okved in ('IT', 'manufacturing', 'construction', 'retail', 'wholsale', 'transport', 'agriculture', 'consulting')", name='check_industry_okved')
     )
 
 class applications(Base):
@@ -62,7 +63,8 @@ class applications(Base):
     __table_args__ = (
         CheckConstraint("requested_amount > 0", name='check_requested_amount'), #возможно имеет смысл ввести минимальную ссумму кредитования
         CheckConstraint("term_months >= 0", name='check_term_months'),
-        CheckConstraint("status in ('created', 'scored', 'offered', 'approved', 'closed by user', 'denied')", name='check_status')
+        CheckConstraint("status in ('created', 'scored', 'offered', 'approved', 'closed by user', 'denied')", name='check_status'),
+        CheckConstraint("loan_purpose in ('working_capital', 'equipment', 'business_expansion', 'refinancing')", name='check_loan_purpose')
     )
 
 class risk_assesments(Base):
