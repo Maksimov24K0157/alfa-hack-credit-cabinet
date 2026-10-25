@@ -19,6 +19,15 @@ def create_user(email: str, phone: str, hash_password: str, hash_salt: str, name
     finally:
         db.close()
 
+def get_all_emails():
+    """Получить список email всех пользователей."""
+    db = SessionLocal()
+    try:
+        result = db.query(users.email).all()
+        return [row[0] for row in result]
+    finally:
+        db.close()
+
 def get_user_by_id(user_id: int):
     db = SessionLocal()
     try:
