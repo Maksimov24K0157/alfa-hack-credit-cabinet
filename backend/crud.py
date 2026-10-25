@@ -5,11 +5,11 @@ from datetime import datetime, timezone
 # ==========================================
 # 1. ПОЛЬЗОВАТЕЛИ (USERS)
 # ==========================================
-def create_user(email: str, phone: str, hash_password: str, hash_salt: str, name: str, surname: str, patronymic: str = None):
+def create_user(passport_id: int, email: str, phone: str, hash_password: str, hash_salt: str, name: str, surname: str, patronymic: str = None):
     db = SessionLocal()
     try:
         new_user = users(
-            email=email, phone=phone, hash_password=hash_password, hash_salt=hash_salt,
+            passport_id = passport_id, email=email, phone=phone, hash_password=hash_password, hash_salt=hash_salt,
             name=name, surname=surname, patronymic=patronymic
         )
         db.add(new_user)
