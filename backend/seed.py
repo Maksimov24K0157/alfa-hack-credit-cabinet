@@ -117,7 +117,7 @@ def generate_historical_loans():
             issue_date = datetime.now(timezone.utc) - timedelta(days=90)
             end_date = issue_date + timedelta(days=term * 30)
             # Простая формула для платежа (аннуитет для хакатона не нужен)
-            monthly_payment = (amount + (amount * (rate/100) * (term/12))) / term
+            monthly_payment = (amount + (amount * (rate/100) * (Decimal(term)/12))) / Decimal(term)
         
             loan = loans(
                 application_id=None, # <-- Вот тут пусто
