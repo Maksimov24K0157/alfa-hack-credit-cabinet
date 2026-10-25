@@ -28,6 +28,7 @@ class user_companies(Base):
 class companies(Base):
     __tablename__ = 'companies'
     company_id = Column(Integer, primary_key = True, autoincrement = True)
+    name = Column(String, nullable = False, unique = True)
     entity_type = Column(String(11), nullable = False) #строго OOO, ИП, Самозанятый
     inn = Column(String(12), nullable = False, unique = True)
     company_age = Column(Integer, nullable = False,)
