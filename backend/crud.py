@@ -1,5 +1,5 @@
-from database import SessionLocal
-from models import users, companies, user_companies, applications, risk_assesments, products, loan_offers, loans
+from .database import SessionLocal
+from .models import users, companies, user_companies, applications, risk_assesments, products, loan_offers, loans
 from datetime import datetime, timezone
 
 # ==========================================
