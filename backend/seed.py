@@ -1,5 +1,6 @@
 from .database import SessionLocal, init_db
-from .models import users, companies, products, user_companies
+from .models import users, companies, products, user_companies, passport, loans
+from datetime import datetime, timezone, timedelta
 
 def seed_database():
     print("Инициализация базы данных...")
@@ -108,5 +109,46 @@ def seed_database():
     finally:
         db.close()
 
-if __name__ == "__main__":
-    seed_database()
+def generate_historical_loans():
+    print("Генерация исторических кредитов...")
+    db = SessionLocal()
+    try:
+        def create_direct_loan(company_id, amount, rate, term):
+            # 1. Создаем кредит напрямую (без заявки)
+            issue_date = datetime.now(timezone.utc) - timedelta(days=90)
+            end_date = issue_date + timedelta(days=term * 30)
+            # Простая формула для платежа (аннуитет для хакатона не нужен)
+            monthly_payment = (amount + (amount * (rate/100) * (term/12))) / term
+        
+            loan = loans(
+                application_id=None, # <-- Вот тут пусто
+                company_id=company_id,
+                amount=amount, 
+                interest_rate=rate, 
+                term_months=term,
+                issue_date=issue_date, 
+                end_date=end_date,
+                monthly_payment=monthly_payment, 
+                status='active'
+            )
+            db.add(loan)
+        
+            # 2. Сразу увеличиваем долг компании
+            comp = db.query(companies).filter(companies.company_id == company_id).first()
+            if comp:
+                comp.existing_debt += amount 
+            db.commit()
+            print(f"  -> Компании ID={company_id} добавлен кредит на сумму {amount}")
+
+        # Иван (компания 1) — 2 кредита
+        create_direct_loan(company_id=1, amount=2000000.0, rate=15.0, term=12)
+        create_direct_loan(company_id=1, amount=3000000.0, rate=18.5, term=24)
+
+        # Петр (компания 2) — 1 кредит
+        create_direct_loan(company_id=2, amount=1000000.0, rate=22.0, term=6)
+
+        # Сергей (компания 3) — без кредитов (пропускаем)
+
+        print("Готово! Исторические кредиты добавлены.")
+    finally:
+        db.close()
