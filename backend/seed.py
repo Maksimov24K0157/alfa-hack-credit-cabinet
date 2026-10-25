@@ -135,7 +135,7 @@ def generate_historical_loans():
             # 2. Сразу увеличиваем долг компании
             comp = db.query(companies).filter(companies.company_id == company_id).first()
             if comp:
-                comp.existing_debt += amount 
+                comp.existing_debt += Decimal(str(amount)) 
             db.commit()
             print(f"  -> Компании ID={company_id} добавлен кредит на сумму {amount}")
 
