@@ -140,11 +140,11 @@ def generate_historical_loans():
             print(f"  -> Компании ID={company_id} добавлен кредит на сумму {amount}")
 
         # Иван (компания 1) — 2 кредита
-        create_direct_loan(company_id=1, amount=Decimal("2000000.0"), rate=15.0, term=12)
-        create_direct_loan(company_id=1, amount=Decimal("3000000.0"), rate=18.5, term=24)
+        create_direct_loan(company_id=1, amount=Decimal("2000000.0"), rate=Decimal("15.0"), term=12)
+        create_direct_loan(company_id=1, amount=Decimal("3000000.0"), rate=Decimal("18.5"), term=24)
 
         # Петр (компания 2) — 1 кредит
-        create_direct_loan(company_id=2, amount=Decimal("1000000.0"), rate=22.0, term=6)
+        create_direct_loan(company_id=2, amount=Decimal("1000000.0"), rate=Decimal("22.0"), term=6)
 
         # Сергей (компания 3) — без кредитов (пропускаем)
 
