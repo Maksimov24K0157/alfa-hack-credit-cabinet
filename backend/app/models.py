@@ -8,7 +8,7 @@ Base = declarative_base()
 class users(Base):
     __tablename__ = 'users'
     user_id = Column(Integer, primary_key = True, autoincrement = True)
-    email = Column(String(255), nullable = False)
+    email = Column(String(255), nullable = False, unique = True)
     phone = Column(String(12), nullable = False)
     hash_password = Column(String(100), nullable = False, unique = True)
     hash_salt = Column(String(64), nullable = False, unique = True)
