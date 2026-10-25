@@ -134,7 +134,7 @@ class loans(Base):
     __tablename__ = 'loans'
 
     loan_id = Column(Integer, primary_key = True, autoincrement = True)
-    application_id = Column(Integer, ForeignKey("applications.application_id", ondelete = "CASCADE"), nullable = False)
+    application_id = Column(Integer, ForeignKey("applications.application_id", ondelete = "CASCADE"), default = None)
     company_id = Column(Integer, ForeignKey("companies.company_id", ondelete = "CASCADE"), nullable = False)
     amount = Column(Numeric(precision=14, scale=2), nullable = False)
     interest_rate = Column(Numeric(precision=14, scale=2), nullable = False)
