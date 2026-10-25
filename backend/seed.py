@@ -24,7 +24,7 @@ def seed_database():
         db.commit()
         
         comp1 = companies(
-            entity_type="ООО", inn="1234567890", company_age=10,
+            name = "Vandex", entity_type="ООО", inn="1234567890", company_age=10,
             industry_okved="IT", revenue_last_year=15000000.0, 
             net_profit=3000000.0, existing_debt=0.0, 
             credit_history_status="positive"
@@ -40,7 +40,7 @@ def seed_database():
         db.commit()
         
         comp2 = companies(
-            entity_type="ИП", inn="123456789012", company_age=3,
+            name = "Marwa-Shawarma", entity_type="ИП", inn="123456789012", company_age=3,
             industry_okved="retail", revenue_last_year=5000000.0, 
             net_profit=500000.0, existing_debt=2000000.0, 
             credit_history_status="limited"
@@ -56,7 +56,7 @@ def seed_database():
         db.commit()
         
         comp3 = companies(
-            entity_type="ООО", inn="9876543210", company_age=1,
+            name = "DyaDya Stroitel", entity_type="ООО", inn="9876543210", company_age=1,
             industry_okved="construction", revenue_last_year=1000000.0, 
             net_profit=-500000.0, existing_debt=8000000.0, 
             credit_history_status="negative"
