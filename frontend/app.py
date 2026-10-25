@@ -39,8 +39,12 @@ def get_loans(user_id):
     result = []
     for loan in loans:
         application = crud.get_application_by_id(loan.application_id)
+        if application is None:
+            purpose = "Unknown"
+        else:
+            purpose = application.loan_purpose
         result.append({
-            'id': loan.loan_id, 'purpose': application.loan_purpose, 'amount': loan.amount, 'remaining': "NOT_PRESENT",
+            'id': loan.loan_id, 'purpose': purpose, 'amount': loan.amount, 'remaining': "NOT_PRESENT",
             'rate': loan.interest_rate, 'status': loan.status, 'term': loan.term_months, 'issue_date': loan.issue_date,
             'end_date': loan.end_date, 'monthly_payment': loan.monthly_payment, 'bank_name': "NOT_PRESENT", 'bank_icon': "NOT_PRESENT"
         })
