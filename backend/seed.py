@@ -41,7 +41,7 @@ def seed_database():
         
         comp2 = companies(
             entity_type="ИП", inn="123456789012", company_age=3,
-            industry_okved="Торговля", revenue_last_year=5000000.0, 
+            industry_okved="retail", revenue_last_year=5000000.0, 
             net_profit=500000.0, existing_debt=2000000.0, 
             credit_history_status="limited"
         )
@@ -57,7 +57,7 @@ def seed_database():
         
         comp3 = companies(
             entity_type="ООО", inn="9876543210", company_age=1,
-            industry_okved="Строительство", revenue_last_year=1000000.0, 
+            industry_okved="construction", revenue_last_year=1000000.0, 
             net_profit=-500000.0, existing_debt=8000000.0, 
             credit_history_status="negative"
         )
