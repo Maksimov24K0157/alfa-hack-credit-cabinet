@@ -8,7 +8,7 @@ Base = declarative_base()
 class users(Base):
     __tablename__ = 'users'
     user_id = Column(Integer, primary_key = True, autoincrement = True)
-    passport_id = Column(Integer, ForeignKey("passport.id", ondelete = "CASCADE"), nullable = True, unique = True)
+    passport_id = Column(Integer, ForeignKey("passport.id", ondelete = "CASCADE"), nullable = True, unique = True, default = None)
     email = Column(String(255), nullable = False, unique = True)
     phone = Column(String(12), nullable = False)
     hash_password = Column(String(100), nullable = False)
