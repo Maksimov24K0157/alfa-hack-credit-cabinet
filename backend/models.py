@@ -8,6 +8,7 @@ Base = declarative_base()
 class users(Base):
     __tablename__ = 'users'
     user_id = Column(Integer, primary_key = True, autoincrement = True)
+    passport_id = Column(Integer, ForeignKey("passport.id", ondelete = "CASCADE"), nullable = False, unique = True)
     email = Column(String(255), nullable = False, unique = True)
     phone = Column(String(12), nullable = False)
     hash_password = Column(String(100), nullable = False)
@@ -15,6 +16,20 @@ class users(Base):
     name = Column(String(100), nullable = False)
     surname = Column(String(100), nullable = False)
     patronymic = Column(String(100), default = None)
+
+class passport(Base):
+    __tablename__ = 'passport'
+    id = Column(Integer, primary_key = True, autoincrement = True)
+    series = Column(String(10), nullable = False)
+    number = Column(String(10), nullable = False)
+    issued_by = Column(String(255), nullable = False)
+    issue_date = Column(DateTime(timezone = True), nullable = False)
+    code = Column(String(10), nullable = False)
+    registration_address = Column(String(255), nullable = False)
+    birth_date = Column(DateTime(timezone = True), nullable = False)
+    __table_args__ = (
+        UniqueConstraint('series', 'number', name='unique_series_number'),
+    )
 
 class user_companies(Base):
     __tablename__ = 'user_companies'
