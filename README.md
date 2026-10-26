@@ -1,12 +1,17 @@
 # alfa-hack-credit-cabinet
 # Название проекта: Умный кредитный кабинет
+Прототип цифрового кредитного конвейера для малого и микробизнеса. Решение позволяет предпринимателю пройти путь от выбора кредитного продукта до получения решения по заявке, а банку — автоматически оценить риск и сформировать предложения.
+
 Команда:
 * Глеб Гусаров - TeamLead / Data Scientist / ML Engineer
 * Максимов Алексей - Data Scientist
 * Дейнеко Анна - Data Scientist
 * Елькин Дмитрий - Frontend developer / Backend developer
 * Андрей Овчинников - Frontend developer / Backend developer
-Запуск: docker-compose up
+
+## Быстрый старт (Docker)
+
+
 Структура:
 ```text
 alfa-hack-credit-cabinet/
