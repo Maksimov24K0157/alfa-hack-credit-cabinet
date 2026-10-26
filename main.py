@@ -1,4 +1,4 @@
 from frontend.app import app
 from ml.src.catboosting import predict_risk
 
-app.run(debug=True, port=5000)
+app.run(host='0.0.0.0', port=5000, debug=True)
