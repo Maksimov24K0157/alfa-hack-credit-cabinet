@@ -63,19 +63,18 @@ alfa-hack-credit-cabinet/
 ├── backend/                  # Серверная часть
 ├── frontend/                 # Пользовательский интерфейс
 ├── ml/                       # ML-компонент
-├── Dockerfile
+├── Dockerfile                # Сборка Docker-образа
 ├── README.md                 # Основная документация
 ├── THIRD_PARTY_NOTICES.md    # Сведения о сторонних компонентах
-├── api.md
-├── architecture.md
-├── data_and_limitations.md
+├── api.md                    # Описание API
+├── architecture.md           # Архитектурная схема
+├── data_and_limitations.md   # Данные и ограничения
 ├── docker-compose.yml        # Запуск контейнеров
-├── init_db.py
-├── main.py
-├── ml_model.md
-├── requirements.txt
-├── test.db
-└── test.py
+├── init_db.py                # Скрипт инициализации базы данных
+├── main.py                   # Скрипт запуска приложения
+├── ml_model.md               # Описание ML-модели
+├── requirements.txt          # Python-зависимости
+└── test.db                   # База данных SQLite (тестовые данные)
 ```
 
 Внутренняя структура каталогов может меняться по мере разработки. Для актуального перечня файлов используйте дерево репозитория.
