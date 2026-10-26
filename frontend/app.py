@@ -1,5 +1,6 @@
 from flask import Flask, render_template, jsonify, request
 from backend import crud
+from ml.src import catboosting
 from datetime import datetime
 from decimal import Decimal
 
@@ -108,6 +109,37 @@ def create_application():
     
     return jsonify({'success': True, 'applicationId': application.application_id})
 
+def calc_rate(risk_level, min_rate, max_rate):
+    if risk_level == "low_risk":
+        return min_rate
+    elif risk_level == "medium_risk":
+        return min_rate*0.5 + max_rate*0.5
+    elif risk_level == "high_risk":
+        return min_rate*0.2 + max_rate*0.8
+    else:
+        return max_rate
+def pick_offers(risk_eval, req_amount, req_term):
+    risk_numerate = {'low_risk':0, 'medium_risk':1, 'high_risk':2, 'very_high_risk':3}
+    products = crud.get_all_products()
+    selected = []
+    for product in products:
+        if risk_numerate[risk_eval["risk_class"]] <= risk_numerate[product.max_allowed_risk_levels]:
+            amount_priority = True
+            if req_amount > product.max_amount:
+                req_amount = product.max_amount
+            elif req_amount < product.min_amount:
+                req_amount = product.min_amount
+            offer = {
+                "amount": req_amount,
+                "term": req_term,
+                "rate": calc_rate(risk_eval["risk_class"], product.min_rate, product.max_rate),
+                "bank_name": "Альфа-Банк",
+                "amount_priority": amount_priority
+            }
+            selected.append(offer)
+    selected.sort(key = lambda x: x["rate"])
+    return selected
+
 @app.route('/api/offers/<int:user_id>', methods=['POST'])
 def get_offers(user_id):
     try:
@@ -123,18 +155,20 @@ def get_offers(user_id):
         company = crud.get_company_by_id(int(company_id))
         if not company:
             return jsonify({'error': 'Company not found'}), 404
-            
-        company_name = company.name
         
-        # Здесь в будущем будет вызов ML-модели для оценки риска
-        # risk_score = ml_model.predict(company_features)
+        company_cat_data = {
+                "company_age": company.company_age,
+                "revenue_last_year": company.revenue_last_year,
+                "net_profit": company.net_profit,
+                "existing_debt": company.existing_debt,
+                "requested_amount": req_amount,
+                "industry_okved": company.industry_okved,
+                "credit_history_status": company.credit_history_status,
+                "loan_purpose": "",
+        }
 
-        # Формируем предложения (заглушка)
-        offers = [
-            {'id': 1, 'amount': req_amount, 'term': req_term, 'rate': 12.5, 'company_name': company_name},
-            {'id': 2, 'amount': req_amount, 'term': req_term, 'rate': 14.0, 'company_name': company_name},
-            {'id': 3, 'amount': req_amount * 0.9, 'term': req_term, 'rate': 15.5, 'company_name': company_name},
-        ]
+        risk_eval = catboosting.predict_risk(company_cat_data)
+        offers = pick_offers(risk_eval, req_amount, req_term)
         
         return jsonify({'offers': offers, 'isAlternative': False})
         
