@@ -1,6 +1,5 @@
 from flask import Flask, render_template, jsonify, request
 from backend import crud
-from ml.src import catboosting
 from datetime import datetime
 from decimal import Decimal
 
@@ -23,24 +22,21 @@ def get_user(email):
     passport = crud.get_passport_by_id(user.passport_id) if user.passport_id else None
     companies = crud.get_companies_by_user(user.user_id)
     
-    # Формируем строку со всеми компаниями (например, "ООО Ромашка, ИП Иванов")
     company_names = ", ".join([c.name for c in companies]) if companies else "Нет компании"
-    
-    # Берем ИНН и выручку первой компании для отображения в профиле (если есть)
     inn = companies[0].inn if companies else "NOT_PRESENT"
     revenue = float(companies[0].revenue_last_year) if companies else 0
 
     return jsonify({
         'userId': user.user_id, 
         'login': user.email, 
-        'password': user.hash_password, # В реальности тут хэш, для теста сойдет
+        'password': user.hash_password, 
         'name': user.name, 
         'surname': user.surname, 
         'patronymic': user.patronymic or "", 
         'phone': user.phone, 
         'inn': inn, 
         'company': company_names,
-        'salary': revenue, # Используем выручку компании как "заработок" для отображения
+        'salary': revenue,
         'risk': "NOT_PRESENT", 
         'passportSeries': passport.series if passport else "",
         'passportNumber': passport.number if passport else "",
@@ -51,13 +47,30 @@ def get_user(email):
         'birthDate': passport.birth_date.strftime("%Y-%m-%d") if passport and passport.birth_date else ""
     })
 
+# НОВЫЙ ЭНДПОИНТ ДЛЯ ПОЛУЧЕНИЯ КОМПАНИЙ (для выпадающего списка)
+@app.route('/api/user_companies/<int:user_id>')
+def get_user_companies(user_id):
+    companies = crud.get_companies_by_user(user_id)
+    result = []
+    for c in companies:
+        result.append({
+            'company_id': c.company_id,
+            'name': c.name,
+            'inn': c.inn
+        })
+    return jsonify(result)
+
 @app.route('/api/loans/<int:user_id>')
 def get_loans(user_id):
     loans = crud.get_loans_by_user_id(user_id)
     result = []
     for loan in loans:
         application = crud.get_application_by_id(loan.application_id)
-        purpose = application.loan_purpose if application else "Неизвестно"
+        purpose = application.loan_purpose if application else "Кредит на бизнес"
+        
+        company = crud.get_company_by_id(loan.company_id)
+        company_name = company.name if company else "Неизвестная компания"
+        
         result.append({
             'id': loan.loan_id, 
             'purpose': purpose, 
@@ -69,7 +82,8 @@ def get_loans(user_id):
             'issue_date': loan.issue_date.strftime("%Y-%m-%d") if loan.issue_date else "",
             'end_date': loan.end_date.strftime("%Y-%m-%d") if loan.end_date else "", 
             'monthly_payment': float(loan.monthly_payment), 
-            'bank_name': "Альфа-Банк", # Убрали иконку, оставили просто имя
+            'bank_name': "Альфа-Банк",
+            'company_name': company_name
         })
     return jsonify(result)
 
@@ -80,18 +94,14 @@ def create_application():
     amount = data.get('amount')
     term = data.get('term')
     purpose = data.get('purpose')
+    company_id = data.get('companyId')
     
-    # Находим компанию пользователя, чтобы привязать заявку
-    companies = crud.get_companies_by_user(user_id)
-    if not companies:
-        return jsonify({'error': 'User has no companies'}), 400
-        
-    company_id = companies[0].company_id # Берем первую компанию
+    if not company_id:
+        return jsonify({'error': 'Company ID is required'}), 400
     
-    # Создаем заявку через CRUD
     application = crud.create_application(
         user_id=user_id, 
-        company_id=company_id, 
+        company_id=int(company_id), 
         amount=amount, 
         term=term, 
         purpose=purpose
@@ -105,9 +115,6 @@ def get_offers(user_id):
         data = request.json
         req_amount = float(data.get('amount', 0))
         req_term = int(data.get('term', 0))
-        
-        # В реальной системе здесь вызывается ML-модель (catboosting) и достаются продукты из БД
-        # Для хакатона мы сделаем заглушку: выдаем несколько предложений с разными ставками
         
         offers = [
             {'id': 1, 'amount': req_amount, 'term': req_term, 'rate': 12.5, 'bank_name': 'Альфа-Банк'},
@@ -127,13 +134,12 @@ def issue_loan():
     user_id = data.get('userId')
     application_id = data.get('applicationId')
     
-    # Приводим все числа к float, чтобы избежать ошибки с Decimal
+    # Используем Decimal для избежания ошибки типов в SQLAlchemy
     amount = Decimal(str(data.get('amount', 0)))
     term = int(data.get('term', 0))
     rate = Decimal(str(data.get('rate', 0)))
     monthly_payment = Decimal(str(data.get('monthly_payment', 0)))
     
-    # Обновляем данные пользователя и паспорта
     user = crud.get_user_by_id(user_id)
     if user:
         crud.update_user(user_id, phone=data.get('phone'), name=data.get('name'), surname=data.get('surname'))
@@ -149,11 +155,9 @@ def issue_loan():
                 birth_date=datetime.strptime(data.get('birthDate'), "%Y-%m-%d") if data.get('birthDate') else None
             )
             
-    # Получаем компанию для выдачи кредита
     companies = crud.get_companies_by_user(user_id)
     company_id = companies[0].company_id if companies else 1
 
-    # Выдаем кредит через CRUD (все числа теперь float)
     crud.create_loan(
         application_id=application_id,
         company_id=company_id,
