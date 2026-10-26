@@ -46,8 +46,7 @@
         #page3, #page4, #page8, #page9 { padding-top: 70px; display: flex; flex-direction: column; align-items: center; }
         .page-title { font-size: 26px; font-weight: bold; margin-bottom: 25px; text-align: center; width: 100%; }
         
-        /* Карточки кредитов (без иконок и банков) */
-        .loan-card { border-radius: 20px; padding: 20px; margin-bottom: 20px; width: 100%; max-width: 550px; display: flex; align-items: center; box-shadow: 0 8px 16px rgba(0,0,0,0.4); color: #ffffff; background: linear-gradient(135deg, #b31b14 0%, #2b2b2b 100%); }
+        .loan-card { border-radius: 20px; padding: 20px; margin-bottom: 20px; width: 100%; max-width: 550px; display: flex; align-items: center; box-shadow: 0 8px 16px rgba(0,0,0,0.4); color: #ffffff; background: linear-gradient(135deg, #b31b14 0%, #2b2b2b 100%); cursor: pointer;}
         .loan-info { flex-grow: 1; display: flex; flex-direction: column; }
         .loan-purpose { font-size: 18px; font-weight: bold; margin-bottom: 8px; }
         .loan-amounts { display: flex; gap: 20px; font-size: 14px; color: rgba(255,255,255,0.7); }
@@ -173,6 +172,15 @@
         <button class="back-arrow" onclick="goTo(1)">←</button>
         <div class="form-container">
             <div class="form-title">Цель кредита</div>
+            
+            <!-- ВЫБОР КОМПАНИИ -->
+            <div class="form-group">
+                <label>Компания</label>
+                <select id="loanCompany" onchange="checkForm()">
+                    <option value="">Выберите компанию...</option>
+                </select>
+            </div>
+
             <div class="form-group">
                 <label>Цель кредита</label>
                 <select id="loanPurpose" onchange="checkForm()">
@@ -269,14 +277,39 @@
             }
         }
 
-        function logout() { localStorage.removeItem('alphaUser'); window.currentUser = null; updateAuthUI(); goTo(1); }
+        function logout() { 
+            // Удаляем данные из хранилища
+            localStorage.removeItem('alphaUser'); 
+            window.currentUser = null; 
+            
+            // Очищаем поля ввода логина и пароля
+            document.getElementById("loginInput").value = "";
+            document.getElementById("passwordInput").value = "";
+            
+            // Очищаем список компаний в форме кредита
+            const companySelect = document.getElementById("loanCompany");
+            if (companySelect) companySelect.innerHTML = '<option value="">Выберите компанию...</option>';
+            
+            // Обновляем кнопку в углу (снова делаем иконку) и переходим на главную
+            updateAuthUI(); 
+            goTo(1); 
+        }
+
         function handleNeedCredit() { if (window.currentUser) { goTo(5); } else { goTo(14); } }
         
         function goTo(pageNum) { 
             document.querySelectorAll(".page").forEach(p => p.classList.add("hidden")); 
             document.getElementById("page" + pageNum).classList.remove("hidden"); 
             
-            // Если переходим на страницу 5 (форма), проверяем, заполнены ли поля
+            // Если открываем страницу Входа (15) — принудительно очищаем поля
+            if (pageNum === 15) {
+                document.getElementById("loginInput").value = "";
+                document.getElementById("passwordInput").value = "";
+                window.currentUser = null; // Сбрасываем текущего пользователя
+                document.getElementById("loginDropdown").classList.add("hidden"); // Закрываем выпадающий список
+            }
+
+            // Если переходим на страницу 5 (форма) — проверяем заполненность, чтобы кнопка стала активной
             if (pageNum === 5) {
                 checkForm();
             }
@@ -325,18 +358,50 @@
             });
         }
         function login() {
-            if (!window.currentUser) { goTo(0); return; }
+            // Проверка: если пользователь не выбран (или объект пустой) — кидаем на страницу ошибки
+            if (!window.currentUser || !window.currentUser.userId) { 
+                goTo(0); 
+                return; 
+            }
+            
+            // Сохраняем в локальное хранилище
             localStorage.setItem('alphaUser', JSON.stringify(window.currentUser));
-            updateAuthUI(); fillProfile(); goTo(2);
+            
+            // Обновляем интерфейс (кнопку в углу), заполняем профиль и переходим на страницу 2
+            updateAuthUI(); 
+            fillProfile(); 
+            goTo(2);
         }
+        
         function fillProfile() {
             const u = window.currentUser;
+            if (!u) return; // Если пользователя нет, ничего не делаем
+
             document.getElementById("profileFio").innerText = `${u.surname} ${u.name} ${u.patronymic}`;
             document.getElementById("profilePhone").innerText = u.phone;
             document.getElementById("profileEmail").innerText = u.login;
             document.getElementById("profileInn").innerText = u.inn || "-";
             document.getElementById("profileCompany").innerText = u.company || "-";
             document.getElementById("profileSalary").innerText = u.salary ? u.salary.toLocaleString("ru-RU") : "0";
+
+            // Очищаем список компаний перед заполнением
+            const companySelect = document.getElementById("loanCompany");
+            companySelect.innerHTML = '<option value="">Выберите компанию...</option>';
+            
+            // Загружаем компании, только если у пользователя есть ID
+            if (u.userId) {
+                fetch(`/api/user_companies/${u.userId}`)
+                    .then(res => res.json())
+                    .then(companies => {
+                        companies.forEach(c => {
+                            const opt = document.createElement("option");
+                            opt.value = c.company_id;
+                            opt.innerText = c.name;
+                            companySelect.appendChild(opt);
+                        });
+                    })
+                    .catch(err => console.error("Ошибка загрузки компаний:", err));
+            }
         }
 
         function openLoans() {
@@ -352,7 +417,8 @@
                     card.onclick = function() { openLoanDetails(loan); };
                     card.innerHTML = `
                         <div class="loan-info">
-                            <div class="loan-purpose">Кредит на бизнес</div>
+                            <div class="loan-purpose">${loan.purpose}</div>
+                            <div style="font-size: 13px; color: #aaa; margin-bottom: 5px;">Компания: ${loan.company_name}</div>
                             <div class="loan-amounts">
                                 <div>Сумма: <b>${loan.amount.toLocaleString("ru-RU")} ₽</b></div>
                                 <div>Платёж: <b>${loan.monthly_payment.toLocaleString("ru-RU")} ₽</b></div>
@@ -370,9 +436,10 @@
             const formatDate = (d) => { if(!d) return "-"; const p = d.split(" ")[0].split("-"); return `${p[2]}.${p[1]}.${p[0]}`; };
             detailCard.innerHTML = `
                 <div class="detail-header">
-                    <div class="detail-purpose">Кредит на бизнес</div>
+                    <div class="detail-purpose">${loan.purpose}</div>
                     <div class="detail-monthly">Платёж<b>${loan.monthly_payment.toLocaleString("ru-RU")} ₽</b></div>
                 </div>
+                <div class="detail-row"><div class="detail-label">Компания</div><div class="detail-value">${loan.company_name}</div></div>
                 <div class="detail-row"><div class="detail-label">Сумма кредита</div><div class="detail-value">${loan.amount.toLocaleString("ru-RU")} ₽</div></div>
                 <div class="detail-row"><div class="detail-label">Остаток долга</div><div class="detail-value">${loan.amount.toLocaleString("ru-RU")} ₽</div></div>
                 <div class="detail-row"><div class="detail-label">Процентная ставка</div><div class="detail-value">${loan.rate}%</div></div>
@@ -384,15 +451,17 @@
         }
 
         function checkForm() {
+            const company = document.getElementById("loanCompany").value;
             const p = document.getElementById("loanPurpose").value;
             const a = document.getElementById("loanAmount").value;
             const t = document.getElementById("loanTerm").value;
             const btn = document.getElementById("btnNext");
-            if (p !== "" && a > 0 && t > 0) { btn.classList.remove("btn-disabled"); btn.disabled = false; }
+            if (company !== "" && p !== "" && a > 0 && t > 0) { btn.classList.remove("btn-disabled"); btn.disabled = false; }
             else { btn.classList.add("btn-disabled"); btn.disabled = true; }
         }
 
         function submitApplication() {
+            const companyId = document.getElementById("loanCompany").value;
             const purpose = document.getElementById("loanPurpose").value;
             const amount = parseFloat(document.getElementById("loanAmount").value);
             const term = parseInt(document.getElementById("loanTerm").value);
@@ -401,7 +470,13 @@
 
             fetch('/api/applications', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: window.currentUser.userId, amount: amount, term: term, purpose: purpose })
+                body: JSON.stringify({ 
+                    userId: window.currentUser.userId, 
+                    amount: amount, 
+                    term: term, 
+                    purpose: purpose,
+                    companyId: companyId
+                })
             }).then(res => res.json()).then(data => {
                 if (data.success) {
                     currentApplicationId = data.applicationId;
