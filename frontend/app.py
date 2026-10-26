@@ -1,6 +1,5 @@
 from flask import Flask, render_template, jsonify, request
 from backend import crud
-from ml.src import catboosting
 from datetime import datetime
 from decimal import Decimal
 
@@ -48,7 +47,6 @@ def get_user(email):
         'birthDate': passport.birth_date.strftime("%Y-%m-%d") if passport and passport.birth_date else ""
     })
 
-# НОВЫЙ ЭНДПОИНТ ДЛЯ ПОЛУЧЕНИЯ КОМПАНИЙ (для выпадающего списка)
 @app.route('/api/user_companies/<int:user_id>')
 def get_user_companies(user_id):
     companies = crud.get_companies_by_user(user_id)
@@ -110,60 +108,34 @@ def create_application():
     
     return jsonify({'success': True, 'applicationId': application.application_id})
 
-def calc_rate(risk_level, min_rate, max_rate):
-    if risk_level == "low_risk":
-        return min_rate
-    elif risk_level == "medium_risk":
-        return min_rate*0.5 + max_rate*0.5
-    elif risk_level == "high_risk":
-        return min_rate*0.2 + max_rate*0.8
-    else:
-        return max_rate
-def pick_offers(risk_eval, req_amount, req_term):
-    risk_numerate = {'low_risk':0, 'medium_risk':1, 'high_risk':2, 'very_high_risk':3}
-    products = crud.get_all_products()
-    selected = []
-    for product in products:
-        if risk_numerate[risk_eval["risk_class"]] <= risk_numerate[offer.max_allowed_risk_levels]:
-            amount_priority = True
-            if req_amount > product.max_amount:
-                req_amount = product.max_amount
-            elif req_amount < product.min_amount:
-                req_amount = product.min_amount
-            offer = {
-                "amount": req_amount,
-                "term": req_term,
-                "rate": calc_rate(risk_eval["risk_class"], product.min_rate, product.max_rate),
-                "bank_name": "Альфа-Банк",
-                "amount_priority": amount_priority
-            }
-            selected.append(offer)
-    selected.sort(key = lambda x: x["rate"])
-    return selected
-
 @app.route('/api/offers/<int:user_id>', methods=['POST'])
 def get_offers(user_id):
     try:
         data = request.json
         req_amount = float(data.get('amount', 0))
         req_term = int(data.get('term', 0))
+        company_id = data.get('companyId')
 
-        companies = crud.get_companies_by_user(user_id)
+        if not company_id:
+            return jsonify({'error': 'Company ID is required'}), 400
 
-        company_cat_data = {
-                "company_age": 5,
-                "revenue_last_year": 10000000,
-                "net_profit": 1000000,
-                "existing_debt": 2000000,
-                "requested_amount": req_amount,
-                "industry_okved": "IT",
-                "credit_history_status": "good",
-                "loan_purpose": "working_capital",
-        }
+        # Получаем информацию о компании из БД
+        company = crud.get_company_by_id(int(company_id))
+        if not company:
+            return jsonify({'error': 'Company not found'}), 404
+            
+        company_name = company.name
+        
+        # Здесь в будущем будет вызов ML-модели для оценки риска
+        # risk_score = ml_model.predict(company_features)
 
-        risk_eval = catboosting.predict_risk(company_cat_data)
-        offers = pick_offers(risk_eval, req_amount, req_term)
-
+        # Формируем предложения (заглушка)
+        offers = [
+            {'id': 1, 'amount': req_amount, 'term': req_term, 'rate': 12.5, 'company_name': company_name},
+            {'id': 2, 'amount': req_amount, 'term': req_term, 'rate': 14.0, 'company_name': company_name},
+            {'id': 3, 'amount': req_amount * 0.9, 'term': req_term, 'rate': 15.5, 'company_name': company_name},
+        ]
+        
         return jsonify({'offers': offers, 'isAlternative': False})
         
     except Exception as e:
@@ -176,7 +148,7 @@ def issue_loan():
     user_id = data.get('userId')
     application_id = data.get('applicationId')
     
-    # Используем Decimal для избежания ошибки типов в SQLAlchemy
+    # Используем Decimal для корректной работы с денежными суммами
     amount = Decimal(str(data.get('amount', 0)))
     term = int(data.get('term', 0))
     rate = Decimal(str(data.get('rate', 0)))
@@ -211,3 +183,5 @@ def issue_loan():
     
     return jsonify({'success': True})
 
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)
