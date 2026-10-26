@@ -8,7 +8,7 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_PATH = BASE_DIR / "synthetic_data.csv"
-MODEL_PATH = BASE_DIR / "catboost_model.cbm"
+MODEL_PATH = BASE_DIR.parent / "models" / "catboost_model.cbm"
 
 NUMERIC_FEATURES = [
     "company_age",
@@ -103,7 +103,7 @@ def predict_risk(company_data: dict) -> dict:
 
 
 if __name__ == "__main__":
-    train_model()
+    #train_model()
 
     example_company = {
         "company_age": 5,

@@ -1,11 +1,9 @@
-from database import SessionLocal, init_db
-from models import users, companies, products, user_companies, passport, loans
+from .database import SessionLocal, init_db
+from .models import users, companies, products, user_companies, passport, loans
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 
 def seed_database():
-    print("Инициализация базы данных...")
-    init_db()
     
     db = SessionLocal()
     try:
