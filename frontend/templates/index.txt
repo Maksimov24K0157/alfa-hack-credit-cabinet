@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Альфа-Банк Кредиты</title>
+    <style>
+        * { box-sizing: border-box; font-family: "Arial", sans-serif; margin: 0; padding: 0; user-select: none; }
+        body, html { height: 100%; background-color: #2b2b2b; color: #ffffff; overflow: hidden; }
+        .hidden { display: none !important; }
+        .flex-center { display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        .page { height: 100vh; width: 100vw; position: absolute; top: 0; left: 0; padding: 20px; overflow-y: auto; }
+        
+        .btn-red { background-color: #ef3124; color: #ffffff; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; padding: 15px 30px; text-transform: uppercase; transition: 0.2s; width: 100%; max-width: 400px; text-align: center;}
+        .btn-red:active { background-color: #c92419; }
+        .btn-white { background-color: #ffffff; color: #2b2b2b; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; padding: 15px 30px; width: 100%; max-width: 400px; transition: 0.2s; text-align: center;}
+        .btn-white:active { background-color: #e0e0e0; }
+        .btn-logout { background-color: transparent; color: #aaaaaa; border: 1px solid #aaaaaa; border-radius: 12px; font-size: 16px; cursor: pointer; padding: 10px 20px; margin-top: 10px; transition: 0.2s; }
+        .btn-logout:active { background-color: #444444; }
+
+        .top-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 10px 0; position: absolute; top: 0; left: 0; padding: 20px; z-index: 10; }
+        .logo { font-size: 24px; font-weight: bold; color: #ef3124; }
+        .profile-icon { width: 40px; height: 40px; border: 2px solid #ffffff; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .profile-auth { display: flex; align-items: center; cursor: pointer; background-color: #3a3a3a; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: bold; transition: 0.2s;}
+        .profile-auth:hover { background-color: #444; }
+        .back-arrow { font-size: 30px; cursor: pointer; position: absolute; top: 20px; left: 20px; z-index: 10; color: #ffffff; background: none; border: none; }
+
+        #page1 .main-title { font-size: 32px; text-align: center; margin-bottom: 40px; }
+        #page1 .btn-red { font-size: 24px; padding: 25px 40px; border-radius: 50px; width: auto;}
+        #page14 .btn-white { margin-bottom: 15px; }
+
+        #page15 .input-group { width: 80%; max-width: 300px; margin-bottom: 15px; position: relative; }
+        #page15 input { width: 100%; padding: 15px; border-radius: 8px; border: none; font-size: 16px; background-color: #444444; color: #ffffff; }
+        #page15 input::placeholder { color: #aaaaaa; }
+        .dropdown { position: absolute; top: 100%; left: 0; width: 100%; background: #ffffff; color: #000000; border-radius: 0 0 8px 8px; max-height: 150px; overflow-y: auto; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .dropdown-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eeeeee; }
+        .dropdown-item:hover { background-color: #f0f0f0; }
+
+        #page2 { display: flex; flex-direction: column; align-items: center; padding-top: 80px; }
+        .avatar { width: 100px; height: 100px; background-color: #444444; border-radius: 50%; margin-bottom: 15px; display: flex; justify-content: center; align-items: center; font-size: 40px; color: #888888; }
+        .fio { font-size: 22px; font-weight: bold; margin-bottom: 20px; text-align: center; }
+        .info-card { background-color: #3a3a3a; border-radius: 12px; padding: 20px; width: 100%; max-width: 400px; margin-bottom: 20px; }
+        .info-row { margin-bottom: 10px; font-size: 15px; }
+        .info-row span { color: #aaaaaa; font-size: 13px; display: block; margin-bottom: 2px; }
+
+        #page3, #page4, #page8, #page9 { padding-top: 70px; display: flex; flex-direction: column; align-items: center; }
+        .page-title { font-size: 26px; font-weight: bold; margin-bottom: 25px; text-align: center; width: 100%; }
+        
+        .loan-card { border-radius: 20px; padding: 20px; margin-bottom: 20px; width: 100%; max-width: 550px; display: flex; align-items: center; box-shadow: 0 8px 16px rgba(0,0,0,0.4); color: #ffffff; background: linear-gradient(135deg, #b31b14 0%, #2b2b2b 100%); cursor: pointer;}
+        .loan-info { flex-grow: 1; display: flex; flex-direction: column; }
+        .loan-purpose { font-size: 18px; font-weight: bold; margin-bottom: 8px; }
+        .loan-amounts { display: flex; gap: 20px; font-size: 14px; color: rgba(255,255,255,0.7); }
+        .loan-amounts b { color: #ffffff; font-size: 15px; }
+        .loan-term { text-align: right; font-size: 12px; color: rgba(255,255,255,0.7); min-width: 60px; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 10px;}
+        .loan-term b { color: #ffffff; font-size: 14px; display: block; margin-bottom: 2px;}
+
+        .detail-card { background: #3a3a3a; border-radius: 20px; width: 100%; max-width: 500px; padding: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.4); border: 1px solid #444; margin-bottom: 20px; }
+        .detail-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 1px solid #555; padding-bottom: 15px; }
+        .detail-purpose { font-size: 24px; font-weight: bold; color: #ffffff; }
+        .detail-monthly { text-align: right; font-size: 14px; color: #aaaaaa; }
+        .detail-monthly b { display: block; font-size: 20px; color: #ef3124; margin-top: 5px; }
+        .detail-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 16px; border-bottom: 1px dashed #555; padding-bottom: 10px; }
+        .detail-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
+        .detail-label { color: #aaaaaa; }
+        .detail-value { font-weight: bold; text-align: right; }
+
+        #page5 { padding-top: 70px; display: flex; flex-direction: column; align-items: center; }
+        .form-container { width: 100%; max-width: 400px; background: #3a3a3a; padding: 25px; border-radius: 20px; }
+        .form-title { font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 25px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 14px; color: #aaaaaa; margin-bottom: 8px; }
+        .form-group input, .form-group select { width: 100%; padding: 15px; border-radius: 10px; border: none; background: #444; color: white; font-size: 16px; outline: none; transition: 0.2s; }
+        .form-group input:focus, .form-group select:focus { background: #4a4a4a; box-shadow: 0 0 0 2px #ef3124; }
+        .btn-disabled { background-color: #555 !important; color: #888 !important; cursor: not-allowed !important; box-shadow: none !important; }
+
+        #page6 { display: flex; flex-direction: column; align-items: center; overflow: hidden; padding-top: 70px; }
+        .swipe-container { position: relative; width: 100%; max-width: 350px; height: 500px; margin-top: 20px; }
+        .swipe-card { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #b31b14 0%, #2b2b2b 100%); border-radius: 25px; padding: 30px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 15px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); cursor: grab; transition: transform 0.1s ease-out, opacity 0.3s; will-change: transform; z-index: 1; }
+        .swipe-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .swipe-card .rate { font-size: 24px; font-weight: bold; color: #ffdd2d; }
+        .swipe-card-body { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+        .swipe-card-title { font-size: 28px; font-weight: bold; margin-bottom: 10px; }
+        .swipe-card-subtitle { font-size: 16px; color: rgba(255,255,255,0.7); margin-bottom: 20px; }
+        .swipe-card-details { background: rgba(0,0,0,0.2); border-radius: 15px; padding: 15px; }
+        .detail-item { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 16px; }
+        .detail-item:last-child { margin-bottom: 0; }
+        .detail-item span { color: rgba(255,255,255,0.6); }
+        .detail-item b { font-size: 18px; }
+        .swipe-indicator { position: absolute; top: 30px; font-size: 24px; font-weight: bold; padding: 5px 15px; border-radius: 10px; border: 3px solid; opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 10; }
+        .indicator-like { right: 20px; color: #0f9d58; border-color: #0f9d58; transform: rotate(15deg); }
+        .indicator-nope { left: 20px; color: #ef3124; border-color: #ef3124; transform: rotate(-15deg); }
+        .fly-right { transform: translate(500px, -50px) rotate(30deg) !important; opacity: 0 !important; pointer-events: none; }
+        .fly-left { transform: translate(-500px, -50px) rotate(-30deg) !important; opacity: 0 !important; pointer-events: none; }
+        .warning-text { color: #ffb84d; font-size: 16px; text-align: center; margin-bottom: 15px; padding: 10px; background: rgba(255, 184, 77, 0.1); border-radius: 10px; border: 1px solid rgba(255, 184, 77, 0.3); }
+
+        .contract-card { background: #3a3a3a; border-radius: 20px; width: 100%; max-width: 500px; padding: 25px; margin-bottom: 20px; border: 1px solid #444; }
+        .contract-section-title { font-size: 18px; font-weight: bold; margin: 20px 0 10px 0; color: #ef3124; border-bottom: 1px solid #555; padding-bottom: 5px; }
+        .contract-section-title:first-child { margin-top: 0; }
+        .contract-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 14px; }
+        .contract-label { color: #aaaaaa; flex: 1; }
+        .contract-value { font-weight: bold; text-align: right; flex: 1.5; }
+        
+        .edit-input { background: #444; color: white; border: 1px solid #ef3124; border-radius: 5px; padding: 5px 10px; font-size: 14px; width: 100%; text-align: right; outline: none; }
+
+        .action-buttons { display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 400px; }
+        .btn-row { display: flex; gap: 15px; width: 100%; }
+        .btn-row button { flex: 1; padding: 15px 10px; font-size: 16px; }
+        
+        .success-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .success-content { background: #3a3a3a; padding: 40px 30px; border-radius: 20px; text-align: center; max-width: 400px; width: 90%; border: 2px solid #ef3124; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .success-content h2 { color: #ef3124; margin-bottom: 20px; font-size: 28px; }
+    </style>
+</head>
+<body>
+
+    <div id="page1" class="page flex-center">
+        <div class="top-bar">
+            <div class="logo">А</div>
+            <div id="authProfileBtn" class="profile-icon" onclick="goTo(14)">👤</div>
+        </div>
+        <h1 class="main-title">Карьера с Альфа</h1>
+        <button class="btn-red" onclick="handleNeedCredit()">НУЖЕН КРЕДИТ</button>
+    </div>
+
+    <div id="page14" class="page flex-center hidden">
+        <button class="back-arrow" onclick="goTo(1)">←</button>
+        <button class="btn-white" onclick="goTo(15)">ВОЙТИ</button>
+        <button class="btn-white" onclick="showRegModal()">ЗАРЕГИСТРИРОВАТЬСЯ</button>
+    </div>
+
+    <div id="page15" class="page flex-center hidden">
+        <button class="back-arrow" onclick="goTo(14)">←</button>
+        <div class="input-group">
+            <input type="text" id="loginInput" placeholder="Логин" autocomplete="off" onfocus="showDropdown()" onkeyup="filterDropdown()">
+            <div id="loginDropdown" class="dropdown hidden"></div>
+        </div>
+        <div class="input-group">
+            <input type="password" id="passwordInput" placeholder="Пароль" readonly>
+        </div>
+        <button class="btn-red" style="margin-top: 20px; width: 80%; max-width: 300px;" onclick="login()">ВОЙТИ</button>
+        <div id="errorMsg" class="error-msg hidden"></div>
+    </div>
+
+    <div id="page2" class="page flex-center hidden">
+        <button class="back-arrow" onclick="goTo(1)">←</button>
+        <div class="avatar">👤</div>
+        <div class="fio" id="profileFio">Фамилия Имя Отчество</div>
+        <div class="info-card">
+            <div class="info-row"><span>Телефон</span> <b id="profilePhone"></b></div>
+            <div class="info-row"><span>Email</span> <b id="profileEmail"></b></div>
+            <div class="info-row"><span>ИНН</span> <b id="profileInn"></b></div>
+            <div class="info-row"><span>Компании</span> <b id="profileCompany"></b></div>
+            <div class="info-row"><span>Средний заработок</span> <b id="profileSalary"></b> ₽</div>
+        </div>
+        <button class="btn-red" style="width: 80%; max-width: 400px; margin-bottom: 20px;" onclick="openLoans()">МОИ КРЕДИТЫ</button>
+        <button class="btn-logout" onclick="logout()">ВЫЙТИ ИЗ АККАУНТА</button>
+    </div>
+
+    <div id="page3" class="page hidden">
+        <button class="back-arrow" onclick="goTo(2)">←</button>
+        <div class="page-title">Мои кредиты</div>
+        <div id="loansList" style="width: 100%; display: flex; flex-direction: column; align-items: center;"></div>
+    </div>
+
+    <div id="page4" class="page hidden">
+        <button class="back-arrow" onclick="goTo(3)">←</button>
+        <div class="page-title">Информация о кредите</div>
+        <div class="detail-card" id="detailCard"></div>
+    </div>
+
+    <div id="page5" class="page hidden">
+        <button class="back-arrow" onclick="goTo(1)">←</button>
+        <div class="form-container">
+            <div class="form-title">Цель кредита</div>
+            
+            <div class="form-group">
+                <label>Компания</label>
+                <select id="loanCompany" onchange="checkForm()">
+                    <option value="">Выберите компанию...</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Цель кредита</label>
+                <select id="loanPurpose" onchange="checkForm()">
+                    <option value="">Выберите цель...</option>
+                    <option value="working_capital">Пополнение оборотных средств</option>
+                    <option value="equipment">Покупка оборудования</option>
+                    <option value="business_expansion">Расширение бизнеса</option>
+                    <option value="refinancing">Рефинансирование</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Сумма (в рублях)</label>
+                <input type="number" id="loanAmount" placeholder="Например: 500000" oninput="checkForm()">
+            </div>
+            <div class="form-group">
+                <label>Срок (в месяцах)</label>
+                <input type="number" id="loanTerm" placeholder="Например: 24" oninput="checkForm()">
+            </div>
+            <button id="btnNext" class="btn-red btn-disabled" style="width: 100%; margin-top: 10px;" onclick="submitApplication()" disabled>ДАЛЬШЕ</button>
+        </div>
+    </div>
+
+    <div id="page6" class="page hidden">
+        <button class="back-arrow" onclick="goTo(5)">←</button>
+        <div class="page-title">Выберите кредит</div>
+        <div id="warningContainer" style="width: 100%; max-width: 400px; padding: 0 20px;"></div>
+        <div id="swipeContainer" class="swipe-container"></div>
+    </div>
+
+    <div id="page8" class="page hidden">
+        <button class="back-arrow" onclick="goTo(6)">←</button>
+        <div class="page-title">Подтверждение кредита</div>
+        <div class="detail-card" id="page8DetailCard"></div>
+        <div class="action-buttons">
+            <button class="btn-red" onclick="goTo(9); initContract();">БЕРУ</button>
+            <button class="btn-white" onclick="rejectLoan()">ОТКАЗ</button>
+        </div>
+    </div>
+
+    <div id="page9" class="page hidden">
+        <button class="back-arrow" onclick="goTo(8)">←</button>
+        <div class="page-title">Кредитный договор</div>
+        <div class="contract-card" id="contractCard"></div>
+        <div class="action-buttons" id="contractActions">
+            <div class="btn-row">
+                <button class="btn-red" onclick="confirmContract()">ВСЁ ВЕРНО</button>
+                <button class="btn-white" id="btnIncorrect" onclick="editContract()">НЕВЕРНО</button>
+            </div>
+            <button class="btn-white" style="width: 100%;" onclick="goTo(8)">Я ПЕРЕДУМАЛ</button>
+        </div>
+    </div>
+
+    <div id="successModal" class="success-modal hidden">
+        <div class="success-content">
+            <h2>КРЕДИТ УСПЕШНО ОФОРМЛЕН</h2>
+            <p style="margin-bottom: 30px; color: #ccc; font-size: 16px;">Деньги зачислены на ваш счет. Договор подписан.</p>
+            <button class="btn-red" onclick="closeSuccessModal()">ПЕРЕЙТИ НА ОСНОВНУЮ СТРАНИЦУ</button>
+        </div>
+    </div>
+
+    <div id="regModal" class="success-modal hidden">
+        <div class="success-content">
+            <h2 style="font-size: 22px;">ДАННАЯ ФУНКЦИЯ<br>ПОКА ЧТО НЕДОСТУПНА</h2>
+            <button class="btn-red" onclick="document.getElementById('regModal').classList.add('hidden')">ПРОДОЛЖИТЬ</button>
+        </div>
+    </div>
+
+    <div id="page0" class="page flex-center hidden">
+        <div class="error-text">Извините,<br>произошла ошибка</div>
+        <button class="btn-red" onclick="goTo(1)">ВЕРНУТЬСЯ НА ПРЕДЫДУЩУЮ СТРАНИЦУ</button>
+    </div>
+
+    <script>
+        let currentApplicationId = null;
+        let currentCompanyId = null; // Храним ID выбранной компании
+
+        window.addEventListener('load', function() {
+            const savedUser = localStorage.getItem('alphaUser');
+            if (savedUser) {
+                window.currentUser = JSON.parse(savedUser);
+                updateAuthUI();
+            }
+        });
+
+        function updateAuthUI() {
+            const authBtn = document.getElementById('authProfileBtn');
+            if (window.currentUser) {
+                authBtn.className = 'profile-auth';
+                authBtn.innerText = window.currentUser.name;
+                authBtn.onclick = function() { fillProfile(); goTo(2); };
+            } else {
+                authBtn.className = 'profile-icon';
+                authBtn.innerText = '👤';
+                authBtn.onclick = function() { goTo(14); };
+            }
+        }
+
+        function logout() { 
+            localStorage.removeItem('alphaUser'); 
+            window.currentUser = null; 
+            document.getElementById("loginInput").value = "";
+            document.getElementById("passwordInput").value = "";
+            const companySelect = document.getElementById("loanCompany");
+            if (companySelect) companySelect.innerHTML = '<option value="">Выберите компанию...</option>';
+            updateAuthUI(); 
+            goTo(1); 
+        }
+        
+        function handleNeedCredit() { if (window.currentUser) { goTo(5); } else { goTo(14); } }
+        
+        function goTo(pageNum) { 
+            document.querySelectorAll(".page").forEach(p => p.classList.add("hidden")); 
+            document.getElementById("page" + pageNum).classList.remove("hidden"); 
+            
+            if (pageNum === 15) {
+                document.getElementById("loginInput").value = "";
+                document.getElementById("passwordInput").value = "";
+                window.currentUser = null;
+                document.getElementById("loginDropdown").classList.add("hidden");
+            }
+
+            if (pageNum === 5) {
+                checkForm();
+            }
+        }
+
+        function closeSuccessModal() {
+            document.getElementById("successModal").classList.add("hidden");
+            goTo(1);
+        }
+
+        function showRegModal() {
+            document.getElementById("regModal").classList.remove("hidden");
+        }
+
+        const dropdown = document.getElementById("loginDropdown");
+        const loginInput = document.getElementById("loginInput");
+        const passInput = document.getElementById("passwordInput");
+        const errorMsg = document.getElementById("errorMsg");
+        let allLogins = [];
+
+        function loadLogins() { fetch("/api/users").then(res => res.json()).then(data => { allLogins = data; }); }
+        loadLogins();
+
+        function showDropdown() {
+            if (allLogins.length === 0) loadLogins();
+            loginInput.value = ""; passInput.value = ""; errorMsg.classList.add("hidden");
+            renderDropdown(allLogins);
+        }
+        function filterDropdown() { const val = loginInput.value.toLowerCase(); renderDropdown(allLogins.filter(l => l.toLowerCase().includes(val))); }
+        function renderDropdown(items) {
+            dropdown.innerHTML = "";
+            if (items.length === 0) { dropdown.classList.add("hidden"); return; }
+            items.forEach(item => {
+                const div = document.createElement("div");
+                div.className = "dropdown-item"; div.innerText = item;
+                div.onmousedown = function(e) { e.preventDefault(); selectLogin(item); };
+                dropdown.appendChild(div);
+            });
+            dropdown.classList.remove("hidden");
+        }
+        document.addEventListener("click", function(event) { if (!event.target.closest(".input-group")) dropdown.classList.add("hidden"); });
+        function selectLogin(email) {
+            loginInput.value = email; dropdown.classList.add("hidden");
+            fetch("/api/user/" + encodeURIComponent(email)).then(res => res.json()).then(data => {
+                passInput.value = data.password; window.currentUser = data;
+            });
+        }
+        
+        function login() {
+            if (!window.currentUser || !window.currentUser.userId) { goTo(0); return; }
+            localStorage.setItem('alphaUser', JSON.stringify(window.currentUser));
+            updateAuthUI(); fillProfile(); goTo(2);
+        }
+        
+        function fillProfile() {
+            const u = window.currentUser;
+            if (!u) return;
+            
+            document.getElementById("profileFio").innerText = `${u.surname} ${u.name} ${u.patronymic}`;
+            document.getElementById("profilePhone").innerText = u.phone;
+            document.getElementById("profileEmail").innerText = u.login;
+            document.getElementById("profileInn").innerText = u.inn || "-";
+            document.getElementById("profileCompany").innerText = u.company || "-";
+            document.getElementById("profileSalary").innerText = u.salary ? u.salary.toLocaleString("ru-RU") : "0";
+
+            const companySelect = document.getElementById("loanCompany");
+            companySelect.innerHTML = '<option value="">Выберите компанию...</option>';
+            
+            if (u.userId) {
+                fetch(`/api/user_companies/${u.userId}`)
+                    .then(res => res.json())
+                    .then(companies => {
+                        companies.forEach(c => {
+                            const opt = document.createElement("option");
+                            opt.value = c.company_id;
+                            opt.innerText = c.name;
+                            companySelect.appendChild(opt);
+                        });
+                    })
+                    .catch(err => console.error("Ошибка загрузки компаний:", err));
+            }
+        }
+
+        function openLoans() {
+            const list = document.getElementById("loansList");
+            list.innerHTML = '<div style="color: #aaa;">Загрузка кредитов...</div>';
+            goTo(3);
+            fetch("/api/loans/" + window.currentUser.userId).then(res => res.json()).then(loans => {
+                list.innerHTML = "";
+                if (loans.length === 0) { list.innerHTML = '<div style="color: #aaa;">У вас пока нет кредитов.</div>'; return; }
+                loans.forEach(loan => {
+                    const card = document.createElement("div");
+                    card.className = "loan-card";
+                    card.onclick = function() { openLoanDetails(loan); };
+                    card.innerHTML = `
+                        <div class="loan-info">
+                            <div class="loan-purpose">${loan.purpose}</div>
+                            <div style="font-size: 13px; color: #aaa; margin-bottom: 5px;">Компания: ${loan.company_name}</div>
+                            <div class="loan-amounts">
+                                <div>Сумма: <b>${loan.amount.toLocaleString("ru-RU")} ₽</b></div>
+                                <div>Платёж: <b>${loan.monthly_payment.toLocaleString("ru-RU")} ₽</b></div>
+                            </div>
+                        </div>
+                        <div class="loan-term"><b>${loan.term}</b><span>мес.</span></div>
+                    `;
+                    list.appendChild(card);
+                });
+            }).catch(err => { list.innerHTML = '<div style="color: #ff6b6b;">Ошибка загрузки.</div>'; });
+        }
+
+        function openLoanDetails(loan) {
+            const detailCard = document.getElementById("detailCard");
+            const formatDate = (d) => { if(!d) return "-"; const p = d.split(" ")[0].split("-"); return `${p[2]}.${p[1]}.${p[0]}`; };
+            detailCard.innerHTML = `
+                <div class="detail-header">
+                    <div class="detail-purpose">${loan.purpose}</div>
+                    <div class="detail-monthly">Платёж<b>${loan.monthly_payment.toLocaleString("ru-RU")} ₽</b></div>
+                </div>
+                <div class="detail-row"><div class="detail-label">Компания</div><div class="detail-value">${loan.company_name}</div></div>
+                <div class="detail-row"><div class="detail-label">Сумма кредита</div><div class="detail-value">${loan.amount.toLocaleString("ru-RU")} ₽</div></div>
+                <div class="detail-row"><div class="detail-label">Остаток долга</div><div class="detail-value">${loan.amount.toLocaleString("ru-RU")} ₽</div></div>
+                <div class="detail-row"><div class="detail-label">Процентная ставка</div><div class="detail-value">${loan.rate}%</div></div>
+                <div class="detail-row"><div class="detail-label">Дата выдачи</div><div class="detail-value">${formatDate(loan.issue_date)}</div></div>
+                <div class="detail-row"><div class="detail-label">Дата окончания</div><div class="detail-value">${formatDate(loan.end_date)}</div></div>
+                <div class="detail-row"><div class="detail-label">Срок</div><div class="detail-value">${loan.term} мес.</div></div>
+            `;
+            goTo(4);
+        }
+
+        function checkForm() {
+            const company = document.getElementById("loanCompany").value;
+            const p = document.getElementById("loanPurpose").value;
+            const a = document.getElementById("loanAmount").value;
+            const t = document.getElementById("loanTerm").value;
+            const btn = document.getElementById("btnNext");
+            if (company !== "" && p !== "" && a > 0 && t > 0) { btn.classList.remove("btn-disabled"); btn.disabled = false; }
+            else { btn.classList.add("btn-disabled"); btn.disabled = true; }
+        }
+
+        function submitApplication() {
+            const companyId = document.getElementById("loanCompany").value;
+            const purpose = document.getElementById("loanPurpose").value;
+            const amount = parseFloat(document.getElementById("loanAmount").value);
+            const term = parseInt(document.getElementById("loanTerm").value);
+            const btn = document.getElementById("btnNext");
+            btn.innerText = "ЗАГРУЗКА..."; btn.disabled = true;
+
+            currentCompanyId = companyId; // Сохраняем ID компании глобально
+
+            fetch('/api/applications', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    userId: window.currentUser.userId, 
+                    amount: amount, 
+                    term: term, 
+                    purpose: purpose,
+                    companyId: companyId
+                })
+            }).then(res => res.json()).then(data => {
+                if (data.success) {
+                    currentApplicationId = data.applicationId;
+                    loadOffers(amount, term, purpose, companyId); // Передаем ID компании
+                } else { alert("Ошибка"); btn.innerText = "ДАЛЬШЕ"; btn.disabled = false; }
+            }).catch(err => { alert("Ошибка сервера"); btn.innerText = "ДАЛЬШЕ"; btn.disabled = false; });
+        }
+
+        let swipeOffers = [];
+        let currentSelectedOffer = null; 
+
+        function calcMonthlyPayment(amount, term, rate) {
+            const monthlyRate = (rate / 100) / 12;
+            if (monthlyRate === 0) return amount / term;
+            const payment = amount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -term));
+            return Math.round(payment);
+        }
+
+        function loadOffers(amount, term, purpose, companyId) {
+            const container = document.getElementById("swipeContainer");
+            container.innerHTML = '<div style="color: #aaa; text-align: center; margin-top: 50px;">Подбираем лучшие условия...</div>';
+            document.getElementById("warningContainer").innerHTML = "";
+            goTo(6);
+
+            fetch(`/api/offers/${window.currentUser.userId}`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    amount: amount, 
+                    term: term, 
+                    purpose: purpose,
+                    companyId: companyId // Отправляем ID компании
+                })
+            }).then(res => res.json()).then(data => {
+                container.innerHTML = "";
+                if (data.error) throw new Error(data.error);
+                
+                swipeOffers = data.offers;
+                if (swipeOffers.length === 0) {
+                    container.innerHTML = `<div style="text-align: center; color: #ff6b6b; padding: 20px;">К сожалению, у нас нет кредитов.</div>`;
+                    return;
+                }
+                if (data.isAlternative) {
+                    document.getElementById("warningContainer").innerHTML = `<div class="warning-text">Извините, подходящего кредита нет.<br>Вот доступные альтернативы:</div>`;
+                }
+                renderSwipeCards();
+            }).catch(err => { container.innerHTML = `<div style="color: #ff6b6b; text-align: center;">Ошибка при получении предложений.</div>`; });
+        }
+
+        function renderSwipeCards() {
+            const container = document.getElementById("swipeContainer");
+            container.innerHTML = "";
+
+            for (let i = swipeOffers.length - 1; i >= 0; i--) {
+                const offer = swipeOffers[i];
+                const monthlyPay = calcMonthlyPayment(offer.amount, offer.term, offer.rate);
+                offer.monthly_payment = monthlyPay;
+
+                const card = document.createElement("div");
+                card.className = "swipe-card";
+                card.style.zIndex = swipeOffers.length - i;
+                if (i !== 0) {
+                    card.style.transform = `scale(${1 - (i * 0.05)}) translateY(${i * 10}px)`;
+                    card.style.opacity = "0.5";
+                }
+
+                card.innerHTML = `
+                    <div class="swipe-card-header">
+                        <div class="rate">${offer.rate}%</div>
+                    </div>
+                    <div class="swipe-card-body">
+                        <div class="swipe-card-title">Кредит на бизнес</div>
+                        <div class="swipe-card-subtitle">${offer.company_name}</div>
+                        <div class="swipe-card-details">
+                            <div class="detail-item"><span>Сумма:</span> <b>${offer.amount.toLocaleString("ru-RU")} ₽</b></div>
+                            <div class="detail-item"><span>Срок:</span> <b>${offer.term} мес.</b></div>
+                            <div class="detail-item" style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                                <span>Платёж в мес:</span> <b style="color: #ffdd2d;">${monthlyPay.toLocaleString("ru-RU")} ₽</b>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swipe-indicator indicator-like">ОДОБРИТЬ</div>
+                    <div class="swipe-indicator indicator-nope">ОТКЛОНИТЬ</div>
+                `;
+
+                if (i === 0) makeDraggable(card);
+                container.appendChild(card);
+            }
+        }
+
+        function makeDraggable(card) {
+            let startX = 0, currentX = 0, isDragging = false;
+            const indicatorLike = card.querySelector(".indicator-like");
+            const indicatorNope = card.querySelector(".indicator-nope");
+            const threshold = 100;
+
+            const onDown = (e) => {
+                if (e.type === 'mousedown') e.preventDefault();
+                isDragging = true;
+                startX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+                card.style.transition = "none";
+            };
+            const onMove = (e) => {
+                if (!isDragging) return;
+                const clientX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+                currentX = clientX - startX;
+                card.style.transform = `translate(${currentX}px, 0px) rotate(${currentX * 0.1}deg)`;
+
+                if (currentX > 50) { indicatorLike.style.opacity = currentX / threshold; indicatorNope.style.opacity = 0; }
+                else if (currentX < -50) { indicatorNope.style.opacity = Math.abs(currentX) / threshold; indicatorLike.style.opacity = 0; }
+                else { indicatorLike.style.opacity = 0; indicatorNope.style.opacity = 0; }
+            };
+            const onUp = () => {
+                if (!isDragging) return;
+                isDragging = false;
+                card.style.transition = "transform 0.3s ease-out, opacity 0.3s";
+
+                if (currentX > threshold) {
+                    card.classList.add("fly-right");
+                    setTimeout(() => handleSwipe(true, card), 300);
+                } else if (currentX < -threshold) {
+                    card.classList.add("fly-left");
+                    setTimeout(() => handleSwipe(false, card), 300);
+                } else {
+                    card.style.transform = `translate(0px, 0px) rotate(0deg)`;
+                    indicatorLike.style.opacity = 0; indicatorNope.style.opacity = 0;
+                }
+                currentX = 0;
+            };
+
+            card.addEventListener('mousedown', onDown);
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+            card.addEventListener('touchstart', onDown, {passive: false});
+            document.addEventListener('touchmove', onMove, {passive: false});
+            document.addEventListener('touchend', onUp);
+        }
+
+        function handleSwipe(isLiked, cardElement) {
+            const container = document.getElementById("swipeContainer");
+            const cards = Array.from(container.querySelectorAll(".swipe-card")).sort((a, b) => b.style.zIndex - a.style.zIndex);
+            const currentIndex = swipeOffers.length - parseInt(cards[0].style.zIndex);
+            const currentOffer = swipeOffers[currentIndex];
+
+            if (isLiked) {
+                currentSelectedOffer = currentOffer;
+                showPage8(currentOffer);
+            } else {
+                if (cards.length > 0) cards[0].remove();
+                const remainingCards = container.querySelectorAll(".swipe-card");
+                if (remainingCards.length > 0) {
+                    const sorted = Array.from(remainingCards).sort((a, b) => b.style.zIndex - a.style.zIndex);
+                    const newTopCard = sorted[0];
+                    newTopCard.style.transform = `translate(0px, 0px) scale(1)`;
+                    newTopCard.style.opacity = "1";
+                    makeDraggable(newTopCard);
+                } else {
+                    container.innerHTML = `<div style="text-align: center; color: #aaa; margin-top: 50px;">Вы просмотрели все предложения.</div>`;
+                }
+            }
+        }
+
+        function showPage8(offer) {
+            const detailCard = document.getElementById("page8DetailCard");
+            const formatDate = (d) => {
+                const date = new Date(d);
+                return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`;
+            };
+
+            const today = new Date();
+            const endDate = new Date();
+            endDate.setMonth(today.getMonth() + offer.term);
+
+            detailCard.innerHTML = `
+                <div class="detail-header">
+                    <div class="detail-purpose">Кредит на бизнес</div>
+                    <div class="detail-monthly">Платёж<b>${offer.monthly_payment.toLocaleString("ru-RU")} ₽</b></div>
+                </div>
+                <div class="detail-row"><div class="detail-label">Компания</div><div class="detail-value">${offer.company_name}</div></div>
+                <div class="detail-row"><div class="detail-label">Сумма кредита</div><div class="detail-value">${offer.amount.toLocaleString("ru-RU")} ₽</div></div>
+                <div class="detail-row"><div class="detail-label">Остаток долга</div><div class="detail-value">${offer.amount.toLocaleString("ru-RU")} ₽</div></div>
+                <div class="detail-row"><div class="detail-label">Процентная ставка</div><div class="detail-value">${offer.rate}%</div></div>
+                <div class="detail-row"><div class="detail-label">Статус</div><div class="detail-value">Одобрен</div></div>
+                <div class="detail-row"><div class="detail-label">Дата выдачи</div><div class="detail-value">${formatDate(today)}</div></div>
+                <div class="detail-row"><div class="detail-label">Дата окончания</div><div class="detail-value">${formatDate(endDate)}</div></div>
+                <div class="detail-row"><div class="detail-label">Срок</div><div class="detail-value">${offer.term} мес.</div></div>
+            `;
+            goTo(8);
+        }
+
+        function rejectLoan() {
+            goTo(6);
+            const container = document.getElementById("swipeContainer");
+            const cards = Array.from(container.querySelectorAll(".swipe-card")).sort((a, b) => b.style.zIndex - a.style.zIndex);
+            if (cards.length > 0) cards[0].remove();
+            
+            const remaining = container.querySelectorAll(".swipe-card");
+            if (remaining.length > 0) {
+                const sorted = Array.from(remaining).sort((a, b) => b.style.zIndex - a.style.zIndex);
+                sorted[0].style.transform = `translate(0px, 0px) scale(1)`;
+                sorted[0].style.opacity = "1";
+                makeDraggable(sorted[0]);
+            } else {
+                container.innerHTML = `<div style="text-align: center; color: #aaa; margin-top: 50px;">Вы просмотрели все предложения.</div>`;
+            }
+        }
+
+        function initContract() {
+            document.getElementById("btnIncorrect").style.display = "block";
+            document.getElementById("contractCard").innerHTML = "";
+            renderContract(false); 
+        }
+
+        function renderContract(isEditMode) {
+            const card = document.getElementById("contractCard");
+            const u = window.currentUser;
+            const offer = currentSelectedOffer;
+            const today = new Date().toLocaleDateString('ru-RU');
+
+            const passSeriesHtml = isEditMode ? `<input class="edit-input" id="editPassSeries" value="${u.passportSeries || ''}">` : `<div class="contract-value">${u.passportSeries || '-'}</div>`;
+            const passNumberHtml = isEditMode ? `<input class="edit-input" id="editPassNumber" value="${u.passportNumber || ''}">` : `<div class="contract-value">${u.passportNumber || '-'}</div>`;
+            const passIssuedByHtml = isEditMode ? `<input class="edit-input" id="editPassIssuedBy" value="${u.passportIssuedBy || ''}">` : `<div class="contract-value">${u.passportIssuedBy || '-'}</div>`;
+            const passIssueDateHtml = isEditMode ? `<input class="edit-input" id="editPassIssueDate" value="${u.passportIssueDate || ''}" placeholder="YYYY-MM-DD">` : `<div class="contract-value">${u.passportIssueDate || '-'}</div>`;
+            const passCodeHtml = isEditMode ? `<input class="edit-input" id="editPassCode" value="${u.passportCode || ''}">` : `<div class="contract-value">${u.passportCode || '-'}</div>`;
+            const regAddressHtml = isEditMode ? `<input class="edit-input" id="editRegAddress" value="${u.registrationAddress || ''}">` : `<div class="contract-value" style="font-size:12px;">${u.registrationAddress || '-'}</div>`;
+            const birthDateHtml = isEditMode ? `<input class="edit-input" id="editBirthDate" value="${u.birthDate || ''}" placeholder="YYYY-MM-DD">` : `<div class="contract-value">${u.birthDate || '-'}</div>`;
+
+            const fioHtml = isEditMode 
+                ? `<div style="display:flex; gap:5px; justify-content:flex-end;">
+                    <input class="edit-input" id="editSurname" value="${u.surname}" style="width: 80px;">
+                    <input class="edit-input" id="editName" value="${u.name}" style="width: 80px;">
+                    <input class="edit-input" id="editPatronymic" value="${u.patronymic}" style="width: 80px;">
+                   </div>`
+                : `<div class="contract-value">${u.surname} ${u.name} ${u.patronymic}</div>`;
+
+            const phoneHtml = isEditMode ? `<input class="edit-input" id="editPhone" value="${u.phone}">` : `<div class="contract-value">${u.phone}</div>`;
+
+            card.innerHTML = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 20px; font-weight: bold; color: #fff;">КРЕДИТНЫЙ ДОГОВОР</div>
+                    <div style="font-size: 12px; color: #888;">г. Москва • ${today}</div>
+                </div>
+
+                <div class="contract-section-title">Данные заемщика</div>
+                <div class="contract-row"><div class="contract-label">ФИО</div>${fioHtml}</div>
+                <div class="contract-row"><div class="contract-label">Дата рождения</div>${birthDateHtml}</div>
+                <div class="contract-row"><div class="contract-label">Телефон</div>${phoneHtml}</div>
+
+                <div class="contract-section-title">Паспортные данные</div>
+                <div class="contract-row"><div class="contract-label">Серия</div>${passSeriesHtml}</div>
+                <div class="contract-row"><div class="contract-label">Номер</div>${passNumberHtml}</div>
+                <div class="contract-row"><div class="contract-label">Кем выдан</div>${passIssuedByHtml}</div>
+                <div class="contract-row"><div class="contract-label">Дата выдачи</div>${passIssueDateHtml}</div>
+                <div class="contract-row"><div class="contract-label">Код подразделения</div>${passCodeHtml}</div>
+                <div class="contract-row"><div class="contract-label">Адрес регистрации</div>${regAddressHtml}</div>
+
+                <div class="contract-section-title">Условия кредита</div>
+                <div class="contract-row"><div class="contract-label">Цель</div><div class="contract-value">Кредит на бизнес</div></div>
+                <div class="contract-row"><div class="contract-label">Сумма кредита</div><div class="contract-value">${offer.amount.toLocaleString("ru-RU")} ₽</div></div>
+                <div class="contract-row"><div class="contract-label">Срок</div><div class="contract-value">${offer.term} мес.</div></div>
+                <div class="contract-row"><div class="contract-label">Процентная ставка</div><div class="contract-value">${offer.rate}%</div></div>
+                <div class="contract-row"><div class="contract-label">Ежемесячный платеж</div><div class="contract-value">${offer.monthly_payment.toLocaleString("ru-RU")} ₽</div></div>
+                
+                <div style="margin-top: 30px; font-size: 12px; color: #888; text-align: justify;">
+                    Подписывая данный договор, вы подтверждаете свое согласие с условиями кредитования и обязуетесь своевременно вносить ежемесячные платежи.
+                </div>
+            `;
+        }
+
+        function editContract() {
+            renderContract(true);
+            document.getElementById("btnIncorrect").style.display = "none";
+        }
+
+        function confirmContract() {
+            const isEditMode = document.getElementById("btnIncorrect").style.display === "none";
+            const u = window.currentUser;
+            
+            let newSurname = u.surname, newName = u.name, newPatr = u.patronymic;
+            let newPhone = u.phone;
+            let newPassSeries = u.passportSeries, newPassNumber = u.passportNumber;
+            let newPassIssuedBy = u.passportIssuedBy, newPassIssueDate = u.passportIssueDate;
+            let newPassCode = u.passportCode, newRegAddress = u.registrationAddress;
+            let newBirthDate = u.birthDate;
+
+            if (isEditMode) {
+                newSurname = document.getElementById("editSurname").value;
+                newName = document.getElementById("editName").value;
+                newPatr = document.getElementById("editPatronymic").value;
+                newPhone = document.getElementById("editPhone").value;
+                newPassSeries = document.getElementById("editPassSeries").value;
+                newPassNumber = document.getElementById("editPassNumber").value;
+                newPassIssuedBy = document.getElementById("editPassIssuedBy").value;
+                newPassIssueDate = document.getElementById("editPassIssueDate").value;
+                newPassCode = document.getElementById("editPassCode").value;
+                newRegAddress = document.getElementById("editRegAddress").value;
+                newBirthDate = document.getElementById("editBirthDate").value;
+            }
+
+            fetch('/api/issue_loan', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: u.userId,
+                    applicationId: currentApplicationId,
+                    amount: currentSelectedOffer.amount,
+                    term: currentSelectedOffer.term,
+                    purpose: "Кредит на бизнес",
+                    rate: currentSelectedOffer.rate,
+                    monthly_payment: currentSelectedOffer.monthly_payment,
+                    name: newName, surname: newSurname, patronymic: newPatr,
+                    phone: newPhone,
+                    passportSeries: newPassSeries, passportNumber: newPassNumber,
+                    passportIssuedBy: newPassIssuedBy, passportIssueDate: newPassIssueDate,
+                    passportCode: newPassCode, registrationAddress: newRegAddress, birthDate: newBirthDate
+                })
+            }).then(res => res.json()).then(data => {
+                if (data.success) {
+                    u.surname = newSurname; u.name = newName; u.patronymic = newPatr;
+                    u.phone = newPhone;
+                    u.passportSeries = newPassSeries; u.passportNumber = newPassNumber;
+                    u.passportIssuedBy = newPassIssuedBy; u.passportIssueDate = newPassIssueDate;
+                    u.passportCode = newPassCode; u.registrationAddress = newRegAddress; u.birthDate = newBirthDate;
+                    
+                    localStorage.setItem('alphaUser', JSON.stringify(u));
+                    updateAuthUI();
+                    document.getElementById("successModal").classList.remove("hidden");
+                } else {
+                    alert("Ошибка сервера при оформлении");
+                }
+            });
+        }
+    </script>
+</body>
+</html>
