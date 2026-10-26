@@ -145,10 +145,10 @@ ML-модель выполняет многоклассовую классифи
 
 ## Документация
 
-- [Архитектура системы](docs/architecture.md)
-- [ML-модель](docs/ml_model.md)
-- [API и интеграция](docs/api.md)
-- [Данные, допущения и ограничения](docs/data_and_limitations.md)
+- [Архитектура системы](architecture.md)
+- [ML-модель](ml_model.md)
+- [API и интеграция](api.md)
+- [Данные, допущения и ограничения](data_and_limitations.md)
 
 ## Команда
 
