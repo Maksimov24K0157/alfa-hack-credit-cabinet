@@ -45,9 +45,9 @@
 
         #page3, #page4, #page8, #page9 { padding-top: 70px; display: flex; flex-direction: column; align-items: center; }
         .page-title { font-size: 26px; font-weight: bold; margin-bottom: 25px; text-align: center; width: 100%; }
-        .loan-card { border-radius: 20px; padding: 20px; margin-bottom: 20px; width: 100%; max-width: 550px; display: flex; align-items: center; box-shadow: 0 8px 16px rgba(0,0,0,0.4); color: #ffffff; }
-        .card-А { background: linear-gradient(135deg, #b31b14 0%, #2b2b2b 100%); }
-        .bank-icon { width: 50px; height: 50px; border-radius: 14px; display: flex; justify-content: center; align-items: center; font-size: 24px; font-weight: 900; margin-right: 20px; background-color: rgba(255, 255, 255, 0.15); }
+        
+        /* Карточки кредитов (без иконок и банков) */
+        .loan-card { border-radius: 20px; padding: 20px; margin-bottom: 20px; width: 100%; max-width: 550px; display: flex; align-items: center; box-shadow: 0 8px 16px rgba(0,0,0,0.4); color: #ffffff; background: linear-gradient(135deg, #b31b14 0%, #2b2b2b 100%); }
         .loan-info { flex-grow: 1; display: flex; flex-direction: column; }
         .loan-purpose { font-size: 18px; font-weight: bold; margin-bottom: 8px; }
         .loan-amounts { display: flex; gap: 20px; font-size: 14px; color: rgba(255,255,255,0.7); }
@@ -78,7 +78,6 @@
         .swipe-container { position: relative; width: 100%; max-width: 350px; height: 500px; margin-top: 20px; }
         .swipe-card { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #b31b14 0%, #2b2b2b 100%); border-radius: 25px; padding: 30px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 15px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); cursor: grab; transition: transform 0.1s ease-out, opacity 0.3s; will-change: transform; z-index: 1; }
         .swipe-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .swipe-card .bank-icon { width: 60px; height: 60px; font-size: 30px; margin: 0; }
         .swipe-card .rate { font-size: 24px; font-weight: bold; color: #ffdd2d; }
         .swipe-card-body { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
         .swipe-card-title { font-size: 28px; font-weight: bold; margin-bottom: 10px; }
@@ -95,7 +94,6 @@
         .fly-left { transform: translate(-500px, -50px) rotate(-30deg) !important; opacity: 0 !important; pointer-events: none; }
         .warning-text { color: #ffb84d; font-size: 16px; text-align: center; margin-bottom: 15px; padding: 10px; background: rgba(255, 184, 77, 0.1); border-radius: 10px; border: 1px solid rgba(255, 184, 77, 0.3); }
 
-        /* Договор (Стр 9) */
         .contract-card { background: #3a3a3a; border-radius: 20px; width: 100%; max-width: 500px; padding: 25px; margin-bottom: 20px; border: 1px solid #444; }
         .contract-section-title { font-size: 18px; font-weight: bold; margin: 20px 0 10px 0; color: #ef3124; border-bottom: 1px solid #555; padding-bottom: 5px; }
         .contract-section-title:first-child { margin-top: 0; }
@@ -109,7 +107,6 @@
         .btn-row { display: flex; gap: 15px; width: 100%; }
         .btn-row button { flex: 1; padding: 15px 10px; font-size: 16px; }
         
-        /* Окно успеха и регистрации */
         .success-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .success-content { background: #3a3a3a; padding: 40px 30px; border-radius: 20px; text-align: center; max-width: 400px; width: 90%; border: 2px solid #ef3124; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .success-content h2 { color: #ef3124; margin-bottom: 20px; font-size: 28px; }
@@ -153,7 +150,7 @@
             <div class="info-row"><span>Телефон</span> <b id="profilePhone"></b></div>
             <div class="info-row"><span>Email</span> <b id="profileEmail"></b></div>
             <div class="info-row"><span>ИНН</span> <b id="profileInn"></b></div>
-            <div class="info-row"><span>Компания</span> <b id="profileCompany"></b></div>
+            <div class="info-row"><span>Компании</span> <b id="profileCompany"></b></div>
             <div class="info-row"><span>Средний заработок</span> <b id="profileSalary"></b> ₽</div>
         </div>
         <button class="btn-red" style="width: 80%; max-width: 400px; margin-bottom: 20px;" onclick="openLoans()">МОИ КРЕДИТЫ</button>
@@ -180,14 +177,10 @@
                 <label>Цель кредита</label>
                 <select id="loanPurpose" onchange="checkForm()">
                     <option value="">Выберите цель...</option>
-                    <option value="Ремонт">Ремонт</option>
-                    <option value="Автомобиль">Автомобиль</option>
-                    <option value="Образование">Образование</option>
-                    <option value="Ипотека">Ипотека</option>
-                    <option value="Первоначальный взнос">Первоначальный взнос</option>
-                    <option value="Открытие бизнеса">Открытие бизнеса</option>
-                    <option value="Потребительский">Потребительский</option>
-                    <option value="Кредитная карта">Кредитная карта</option>
+                    <option value="working_capital">Пополнение оборотных средств</option>
+                    <option value="equipment">Покупка оборудования</option>
+                    <option value="business_expansion">Расширение бизнеса</option>
+                    <option value="refinancing">Рефинансирование</option>
                 </select>
             </div>
             <div class="form-group">
@@ -209,7 +202,6 @@
         <div id="swipeContainer" class="swipe-container"></div>
     </div>
 
-    <!-- СТРАНИЦА 8 (Подтверждение) -->
     <div id="page8" class="page hidden">
         <button class="back-arrow" onclick="goTo(6)">←</button>
         <div class="page-title">Подтверждение кредита</div>
@@ -220,13 +212,10 @@
         </div>
     </div>
 
-    <!-- СТРАНИЦА 9 (Договор) -->
     <div id="page9" class="page hidden">
         <button class="back-arrow" onclick="goTo(8)">←</button>
         <div class="page-title">Кредитный договор</div>
-        
         <div class="contract-card" id="contractCard"></div>
-
         <div class="action-buttons" id="contractActions">
             <div class="btn-row">
                 <button class="btn-red" onclick="confirmContract()">ВСЁ ВЕРНО</button>
@@ -236,7 +225,6 @@
         </div>
     </div>
 
-    <!-- Окно успеха -->
     <div id="successModal" class="success-modal hidden">
         <div class="success-content">
             <h2>КРЕДИТ УСПЕШНО ОФОРМЛЕН</h2>
@@ -245,7 +233,6 @@
         </div>
     </div>
 
-    <!-- Окно регистрации (недоступно) -->
     <div id="regModal" class="success-modal hidden">
         <div class="success-content">
             <h2 style="font-size: 22px;">ДАННАЯ ФУНКЦИЯ<br>ПОКА ЧТО НЕДОСТУПНА</h2>
@@ -259,7 +246,8 @@
     </div>
 
     <script>
-        // --- СЕССИЯ И АВТОРИЗАЦИЯ ---
+        let currentApplicationId = null;
+
         window.addEventListener('load', function() {
             const savedUser = localStorage.getItem('alphaUser');
             if (savedUser) {
@@ -287,6 +275,11 @@
         function goTo(pageNum) { 
             document.querySelectorAll(".page").forEach(p => p.classList.add("hidden")); 
             document.getElementById("page" + pageNum).classList.remove("hidden"); 
+            
+            // Если переходим на страницу 5 (форма), проверяем, заполнены ли поля
+            if (pageNum === 5) {
+                checkForm();
+            }
         }
 
         function closeSuccessModal() {
@@ -341,12 +334,11 @@
             document.getElementById("profileFio").innerText = `${u.surname} ${u.name} ${u.patronymic}`;
             document.getElementById("profilePhone").innerText = u.phone;
             document.getElementById("profileEmail").innerText = u.login;
-            document.getElementById("profileInn").innerText = u.inn;
-            document.getElementById("profileCompany").innerText = u.company;
-            document.getElementById("profileSalary").innerText = u.salary.toLocaleString("ru-RU");
+            document.getElementById("profileInn").innerText = u.inn || "-";
+            document.getElementById("profileCompany").innerText = u.company || "-";
+            document.getElementById("profileSalary").innerText = u.salary ? u.salary.toLocaleString("ru-RU") : "0";
         }
 
-        // --- МОИ КРЕДИТЫ ---
         function openLoans() {
             const list = document.getElementById("loansList");
             list.innerHTML = '<div style="color: #aaa;">Загрузка кредитов...</div>';
@@ -356,14 +348,13 @@
                 if (loans.length === 0) { list.innerHTML = '<div style="color: #aaa;">У вас пока нет кредитов.</div>'; return; }
                 loans.forEach(loan => {
                     const card = document.createElement("div");
-                    card.className = `loan-card card-${loan.bank_icon}`;
+                    card.className = "loan-card";
                     card.onclick = function() { openLoanDetails(loan); };
                     card.innerHTML = `
-                        <div class="bank-icon">${loan.bank_icon}</div>
                         <div class="loan-info">
-                            <div class="loan-purpose">${loan.purpose}</div>
+                            <div class="loan-purpose">Кредит на бизнес</div>
                             <div class="loan-amounts">
-                                <div>Остаток: <b>${loan.remaining.toLocaleString("ru-RU")} ₽</b></div>
+                                <div>Сумма: <b>${loan.amount.toLocaleString("ru-RU")} ₽</b></div>
                                 <div>Платёж: <b>${loan.monthly_payment.toLocaleString("ru-RU")} ₽</b></div>
                             </div>
                         </div>
@@ -376,15 +367,14 @@
 
         function openLoanDetails(loan) {
             const detailCard = document.getElementById("detailCard");
-            const formatDate = (d) => { if(!d) return "-"; const p = d.split("-"); return `${p[2]}.${p[1]}.${p[0]}`; };
+            const formatDate = (d) => { if(!d) return "-"; const p = d.split(" ")[0].split("-"); return `${p[2]}.${p[1]}.${p[0]}`; };
             detailCard.innerHTML = `
                 <div class="detail-header">
-                    <div class="detail-purpose">${loan.purpose}</div>
+                    <div class="detail-purpose">Кредит на бизнес</div>
                     <div class="detail-monthly">Платёж<b>${loan.monthly_payment.toLocaleString("ru-RU")} ₽</b></div>
                 </div>
-                <div class="detail-row"><div class="detail-label">Банк</div><div class="detail-value">${loan.bank_name}</div></div>
                 <div class="detail-row"><div class="detail-label">Сумма кредита</div><div class="detail-value">${loan.amount.toLocaleString("ru-RU")} ₽</div></div>
-                <div class="detail-row"><div class="detail-label">Остаток долга</div><div class="detail-value">${loan.remaining.toLocaleString("ru-RU")} ₽</div></div>
+                <div class="detail-row"><div class="detail-label">Остаток долга</div><div class="detail-value">${loan.amount.toLocaleString("ru-RU")} ₽</div></div>
                 <div class="detail-row"><div class="detail-label">Процентная ставка</div><div class="detail-value">${loan.rate}%</div></div>
                 <div class="detail-row"><div class="detail-label">Дата выдачи</div><div class="detail-value">${formatDate(loan.issue_date)}</div></div>
                 <div class="detail-row"><div class="detail-label">Дата окончания</div><div class="detail-value">${formatDate(loan.end_date)}</div></div>
@@ -393,7 +383,6 @@
             goTo(4);
         }
 
-        // --- ФОРМА ---
         function checkForm() {
             const p = document.getElementById("loanPurpose").value;
             const a = document.getElementById("loanAmount").value;
@@ -414,12 +403,13 @@
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId: window.currentUser.userId, amount: amount, term: term, purpose: purpose })
             }).then(res => res.json()).then(data => {
-                if (data.success) loadOffers(amount, term, purpose);
-                else { alert("Ошибка"); btn.innerText = "ДАЛЬШЕ"; btn.disabled = false; }
+                if (data.success) {
+                    currentApplicationId = data.applicationId;
+                    loadOffers(amount, term, purpose);
+                } else { alert("Ошибка"); btn.innerText = "ДАЛЬШЕ"; btn.disabled = false; }
             }).catch(err => { alert("Ошибка сервера"); btn.innerText = "ДАЛЬШЕ"; btn.disabled = false; });
         }
 
-        // --- СВАЙПЫ ---
         let swipeOffers = [];
         let currentSelectedOffer = null; 
 
@@ -444,9 +434,8 @@
                 if (data.error) throw new Error(data.error);
                 
                 swipeOffers = data.offers;
-
                 if (swipeOffers.length === 0) {
-                    container.innerHTML = `<div style="text-align: center; color: #ff6b6b; padding: 20px;">К сожалению, у нас нет кредитов даже в качестве альтернативы.</div>`;
+                    container.innerHTML = `<div style="text-align: center; color: #ff6b6b; padding: 20px;">К сожалению, у нас нет кредитов.</div>`;
                     return;
                 }
                 if (data.isAlternative) {
@@ -475,12 +464,10 @@
 
                 card.innerHTML = `
                     <div class="swipe-card-header">
-                        <div class="bank-icon">${offer.bank_icon}</div>
                         <div class="rate">${offer.rate}%</div>
                     </div>
                     <div class="swipe-card-body">
-                        <div class="swipe-card-title">${offer.purpose}</div>
-                        <div class="swipe-card-subtitle">${offer.bank_name}</div>
+                        <div class="swipe-card-title">Кредит на бизнес</div>
                         <div class="swipe-card-details">
                             <div class="detail-item"><span>Сумма:</span> <b>${offer.amount.toLocaleString("ru-RU")} ₽</b></div>
                             <div class="detail-item"><span>Срок:</span> <b>${offer.term} мес.</b></div>
@@ -570,7 +557,6 @@
             }
         }
 
-        // --- СТРАНИЦА 8 ---
         function showPage8(offer) {
             const detailCard = document.getElementById("page8DetailCard");
             const formatDate = (d) => {
@@ -584,10 +570,9 @@
 
             detailCard.innerHTML = `
                 <div class="detail-header">
-                    <div class="detail-purpose">${offer.purpose}</div>
+                    <div class="detail-purpose">Кредит на бизнес</div>
                     <div class="detail-monthly">Платёж<b>${offer.monthly_payment.toLocaleString("ru-RU")} ₽</b></div>
                 </div>
-                <div class="detail-row"><div class="detail-label">Банк</div><div class="detail-value">${offer.bank_name}</div></div>
                 <div class="detail-row"><div class="detail-label">Сумма кредита</div><div class="detail-value">${offer.amount.toLocaleString("ru-RU")} ₽</div></div>
                 <div class="detail-row"><div class="detail-label">Остаток долга</div><div class="detail-value">${offer.amount.toLocaleString("ru-RU")} ₽</div></div>
                 <div class="detail-row"><div class="detail-label">Процентная ставка</div><div class="detail-value">${offer.rate}%</div></div>
@@ -616,7 +601,6 @@
             }
         }
 
-        // --- СТРАНИЦА 9 (ДОГОВОР) ---
         function initContract() {
             document.getElementById("btnIncorrect").style.display = "block";
             document.getElementById("contractCard").innerHTML = "";
@@ -646,8 +630,6 @@
                 : `<div class="contract-value">${u.surname} ${u.name} ${u.patronymic}</div>`;
 
             const phoneHtml = isEditMode ? `<input class="edit-input" id="editPhone" value="${u.phone}">` : `<div class="contract-value">${u.phone}</div>`;
-            const innHtml = isEditMode ? `<input class="edit-input" id="editInn" value="${u.inn}">` : `<div class="contract-value">${u.inn}</div>`;
-            const companyHtml = isEditMode ? `<input class="edit-input" id="editCompany" value="${u.company}">` : `<div class="contract-value">${u.company}</div>`;
 
             card.innerHTML = `
                 <div style="text-align: center; margin-bottom: 20px;">
@@ -659,8 +641,6 @@
                 <div class="contract-row"><div class="contract-label">ФИО</div>${fioHtml}</div>
                 <div class="contract-row"><div class="contract-label">Дата рождения</div>${birthDateHtml}</div>
                 <div class="contract-row"><div class="contract-label">Телефон</div>${phoneHtml}</div>
-                <div class="contract-row"><div class="contract-label">ИНН</div>${innHtml}</div>
-                <div class="contract-row"><div class="contract-label">Компания</div>${companyHtml}</div>
 
                 <div class="contract-section-title">Паспортные данные</div>
                 <div class="contract-row"><div class="contract-label">Серия</div>${passSeriesHtml}</div>
@@ -671,7 +651,7 @@
                 <div class="contract-row"><div class="contract-label">Адрес регистрации</div>${regAddressHtml}</div>
 
                 <div class="contract-section-title">Условия кредита</div>
-                <div class="contract-row"><div class="contract-label">Цель</div><div class="contract-value">${offer.purpose}</div></div>
+                <div class="contract-row"><div class="contract-label">Цель</div><div class="contract-value">Кредит на бизнес</div></div>
                 <div class="contract-row"><div class="contract-label">Сумма кредита</div><div class="contract-value">${offer.amount.toLocaleString("ru-RU")} ₽</div></div>
                 <div class="contract-row"><div class="contract-label">Срок</div><div class="contract-value">${offer.term} мес.</div></div>
                 <div class="contract-row"><div class="contract-label">Процентная ставка</div><div class="contract-value">${offer.rate}%</div></div>
@@ -693,7 +673,7 @@
             const u = window.currentUser;
             
             let newSurname = u.surname, newName = u.name, newPatr = u.patronymic;
-            let newPhone = u.phone, newInn = u.inn, newCompany = u.company;
+            let newPhone = u.phone;
             let newPassSeries = u.passportSeries, newPassNumber = u.passportNumber;
             let newPassIssuedBy = u.passportIssuedBy, newPassIssueDate = u.passportIssueDate;
             let newPassCode = u.passportCode, newRegAddress = u.registrationAddress;
@@ -704,9 +684,6 @@
                 newName = document.getElementById("editName").value;
                 newPatr = document.getElementById("editPatronymic").value;
                 newPhone = document.getElementById("editPhone").value;
-                newInn = document.getElementById("editInn").value;
-                newCompany = document.getElementById("editCompany").value;
-                
                 newPassSeries = document.getElementById("editPassSeries").value;
                 newPassNumber = document.getElementById("editPassNumber").value;
                 newPassIssuedBy = document.getElementById("editPassIssuedBy").value;
@@ -720,29 +697,28 @@
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     userId: u.userId,
+                    applicationId: currentApplicationId,
                     amount: currentSelectedOffer.amount,
                     term: currentSelectedOffer.term,
-                    purpose: currentSelectedOffer.purpose,
+                    purpose: "Кредит на бизнес",
                     rate: currentSelectedOffer.rate,
                     monthly_payment: currentSelectedOffer.monthly_payment,
                     name: newName, surname: newSurname, patronymic: newPatr,
-                    phone: newPhone, inn: newInn, company: newCompany,
+                    phone: newPhone,
                     passportSeries: newPassSeries, passportNumber: newPassNumber,
                     passportIssuedBy: newPassIssuedBy, passportIssueDate: newPassIssueDate,
                     passportCode: newPassCode, registrationAddress: newRegAddress, birthDate: newBirthDate
                 })
             }).then(res => res.json()).then(data => {
                 if (data.success) {
-                    // Обновляем локальные данные
                     u.surname = newSurname; u.name = newName; u.patronymic = newPatr;
-                    u.phone = newPhone; u.inn = newInn; u.company = newCompany;
+                    u.phone = newPhone;
                     u.passportSeries = newPassSeries; u.passportNumber = newPassNumber;
                     u.passportIssuedBy = newPassIssuedBy; u.passportIssueDate = newPassIssueDate;
                     u.passportCode = newPassCode; u.registrationAddress = newRegAddress; u.birthDate = newBirthDate;
                     
                     localStorage.setItem('alphaUser', JSON.stringify(u));
                     updateAuthUI();
-
                     document.getElementById("successModal").classList.remove("hidden");
                 } else {
                     alert("Ошибка сервера при оформлении");
